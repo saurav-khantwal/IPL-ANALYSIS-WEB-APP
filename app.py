@@ -139,5 +139,24 @@ if(user_menu=='Match details'):
         st.plotly_chart(fig1)
 
     #*********************************************************************************************************************
-                                                    # TEAM ANALYSIS CODE SECTION
+                                                    # PLAYER ANALYSIS CODE SECTION
     # *********************************************************************************************************************
+
+
+if(user_menu=='player details'):
+
+    st.title("PLAYER ANALYSIS")
+    expander_overall_stats=st.expander(label='Show overall stats')
+
+    #Expander window for overall player stats
+
+    with expander_overall_stats:
+        st.header("Overall stats of Ipl players")
+
+
+    expander_player_stats=st.expander("Show player wise analysis")
+
+    #Expander window for player wise analysis
+
+    with expander_player_stats:
+        st.header("Player wise Analysis")
