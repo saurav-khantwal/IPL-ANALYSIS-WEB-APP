@@ -226,7 +226,8 @@ def get_phase_plot(id, inning):
                 , data.loc[6:14, 'total_runs'].sum(),data.loc[15:,'total_runs'].sum()]})
 
     fig = go.Figure(data=[go.Pie(labels=x['Phase'], values=x['Runs'], hole=.3, insidetextorientation='radial')])
-    fig.update_traces(marker=dict(line=dict(color='#000000', width=2)), sort=False)
+    colors = ['rgb(82, 215, 38)', 'rgb(255, 236, 0)', 'rgb(255, 115, 0)']
+    fig.update_traces(marker=dict(colors=colors,line=dict(color='#000000', width=2)), sort=False)
     fig.update_layout(width=675, height=350, margin=dict(t=10, b=20))
     return fig
 
