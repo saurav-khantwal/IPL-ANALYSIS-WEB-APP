@@ -277,6 +277,7 @@ def get_run_tally(cb):
 
 
 def get_wicket_tally(cb):
+    bowling_tally.reset_index(drop=True)
     bowling_tally.index=bowling_tally.index+1
     bowling_tally.rename(columns={'four_wicket':'4W_Hall','five_wicket':'5W_Hall'},inplace=True)
     if(cb):
