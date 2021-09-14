@@ -10,6 +10,8 @@ match_df = pd.read_csv('IPL MATCH.csv')
 ball_df = pd.read_csv('UPDATED IPL BALL.csv')
 scorecard = pd.read_csv('batting_stats_every_match.csv')
 bowling_card = pd.read_csv('bowlingcard.csv')
+batting_tally=pd.read_csv('batting_stats .csv')
+batting_tally_season=pd.read_csv('batting_stats_season.csv')
 
 
 
@@ -187,7 +189,7 @@ def get_contribution_plot(id, inning):
 
     fig = go.Figure(data=[go.Pie(labels=df_scores['batsman'], values=df_scores['batsman_runs'].values, hole=.3,insidetextorientation='radial')])
     fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
-    fig.update_layout(width=675,height=350,margin=dict(t=10,b=20))
+    fig.update_layout(width=800,height=400,margin=dict(t=10,b=20))
     return fig
 
 
@@ -202,7 +204,7 @@ def get_bar_plot(id, inning):
     data['Over'] = data['Over'].astype(str)
     fig = px.bar(data, y='Runs', x='Over', text='Runs')
     fig.update_traces(textposition='outside',marker=dict(line=dict(color='#000000', width=2)))
-    fig.update_layout(width=675, height=400, margin=dict(t=10, b=20))
+    fig.update_layout(width=800, height=400, margin=dict(t=10, b=20))
     return fig
 
 
@@ -228,7 +230,7 @@ def get_phase_plot(id, inning):
     fig = go.Figure(data=[go.Pie(labels=x['Phase'], values=x['Runs'], hole=.3, insidetextorientation='radial')])
     colors = ['rgb(82, 215, 38)', 'rgb(255, 236, 0)', 'rgb(255, 115, 0)']
     fig.update_traces(marker=dict(colors=colors,line=dict(color='#000000', width=2)), sort=False)
-    fig.update_layout(width=675, height=350, margin=dict(t=10, b=20))
+    fig.update_layout(width=800, height=400, margin=dict(t=10, b=20))
     return fig
 
 
@@ -255,5 +257,20 @@ def get_worm_plot(id):
 
     fig = px.line(data, x="over", y="total_runs", color='batting_team')
     fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
-    fig.update_layout(width=780, height=350, margin=dict(t=10, b=20))
+    fig.update_layout(width=900, height=400, margin=dict(t=10, b=20))
     return fig
+
+
+
+#***********************************THIS SECTION WILL RETURN FOR THE PLAYER ANALYSIS SECTION*********************
+
+
+def get_run_tally():
+    x=batting_tally[['batsman','Innings','batsman_runs','Average','strike_rate','High_score','Half_Centuries',
+                          'Centuries']].head(10).reset_index(drop=True)
+    x.index=x.index+1
+    return x
+
+
+def get_wicket_tally():
+    pass

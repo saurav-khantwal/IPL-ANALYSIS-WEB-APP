@@ -5,6 +5,8 @@ import plotly.express as px
 import send
 
 
+st.set_page_config(page_title=None, page_icon=None, layout='wide', initial_sidebar_state='auto')
+
 st.sidebar.title('IPL ANALYSIS')
 user_menu=st.sidebar.radio(
     'select an option',
@@ -146,12 +148,11 @@ if(user_menu=='Match details'):
 if(user_menu=='player details'):
 
     st.title("PLAYER ANALYSIS")
-    expander_overall_stats=st.expander(label='Show overall stats')
 
-    #Expander window for overall player stats
-
-    with expander_overall_stats:
-        st.header("Overall stats of Ipl players")
+    st.header("Overall Run Tally")
+    st.table(send.get_run_tally().style.format(subset=['Average','strike_rate'], formatter="{:.1f}"))
+    st.header("Overall Wicket Tally")
+    st.table(send.get_wicket_tally())
 
 
     expander_player_stats=st.expander("Show player wise analysis")
