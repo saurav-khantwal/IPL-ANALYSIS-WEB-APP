@@ -150,9 +150,13 @@ if(user_menu=='player details'):
     st.title("PLAYER ANALYSIS")
 
     st.header("Overall Run Tally")
-    st.table(send.get_run_tally().style.format(subset=['Average','strike_rate'], formatter="{:.1f}"))
+    st.text(' ')
+    cb_runs=st.checkbox(label='Show Full Run Tally')
+    st.table(send.get_run_tally(cb_runs).style.format(subset=['Average','strike_rate'], formatter="{:.1f}"))
     st.header("Overall Wicket Tally")
-    st.table(send.get_wicket_tally())
+    st.text(' ')
+    cb_wickets=st.checkbox(label='Show Full Wicket Tally')
+    st.table(send.get_wicket_tally(cb_wickets).style.format(subset=['economy'], formatter="{:.2f}"))
 
 
     expander_player_stats=st.expander("Show player wise analysis")

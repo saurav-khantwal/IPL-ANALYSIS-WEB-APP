@@ -12,6 +12,8 @@ scorecard = pd.read_csv('batting_stats_every_match.csv')
 bowling_card = pd.read_csv('bowlingcard.csv')
 batting_tally=pd.read_csv('batting_stats .csv')
 batting_tally_season=pd.read_csv('batting_stats_season.csv')
+bowling_tally=pd.read_csv('bowling_stats.csv')
+bowling_tally_season=pd.read_csv('bowling_stats_season.csv')
 
 
 
@@ -265,12 +267,18 @@ def get_worm_plot(id):
 #***********************************THIS SECTION WILL RETURN FOR THE PLAYER ANALYSIS SECTION*********************
 
 
-def get_run_tally():
+def get_run_tally(cb):
     x=batting_tally[['batsman','Innings','batsman_runs','Average','strike_rate','High_score','Half_Centuries',
-                          'Centuries']].head(10).reset_index(drop=True)
+                          'Centuries']].reset_index(drop=True)
     x.index=x.index+1
-    return x
+    if(cb):
+        return x
+    return x.head(10)
 
 
-def get_wicket_tally():
-    pass
+def get_wicket_tally(cb):
+    bowling_tally.index=bowling_tally.index+1
+    bowling_tally.rename(columns={'four_wicket':'4W_Hall','five_wicket':'5W_Hall'},inplace=True)
+    if(cb):
+        return bowling_tally
+    return bowling_tally.head(10)
