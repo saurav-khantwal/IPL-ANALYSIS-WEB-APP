@@ -17,6 +17,8 @@ bowling_tally_season=pd.read_csv('bowling_stats_season.csv')
 
 
 
+#***********************************THIS SECTION WILL RETURN FOR THE MATCH STATS SECTION*********************
+
 def send_match():
     """This function will send the Imputed
     matches for the match select box"""
@@ -174,7 +176,7 @@ def get_mom(id):
 
 
 
-# *****************This code section will return the plots for the match analysis section*********************************
+# *****************THIS SECTION WILL RETURN FOR THE PLOTS FOR MATCH STATS*********************************
 
 
 def get_contribution_plot(id, inning):
@@ -264,7 +266,7 @@ def get_worm_plot(id):
 
 
 
-#***********************************THIS SECTION WILL RETURN FOR THE PLAYER ANALYSIS SECTION*********************
+#***********************************THIS SECTION WILL RETURN FOR THE OVERALL STATS SECTION*********************
 
 
 def get_run_tally(cb):
@@ -283,3 +285,17 @@ def get_wicket_tally(cb):
     if(cb):
         return bowling_tally
     return bowling_tally.head(10)
+
+
+#***********************************THIS SECTION WILL RETURN FOR THE PLAYER STATS SECTION*********************
+
+
+def get_player_list():
+    return (batting_tally['batsman'].append(bowling_tally['bowler'])).unique()
+
+
+def get_player_season(sb):
+    seasons = list((batting_tally_season.loc[batting_tally_season['batsman']==sb,'season'].
+    append(bowling_tally_season.loc[bowling_tally_season['bowler']==sb,'season'])).unique())
+    seasons.insert(0,'Overall')
+    return seasons

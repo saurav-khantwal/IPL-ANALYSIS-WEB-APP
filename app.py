@@ -10,16 +10,16 @@ st.set_page_config(page_title=None, page_icon=None, layout='wide', initial_sideb
 st.sidebar.title('IPL ANALYSIS')
 user_menu=st.sidebar.radio(
     'select an option',
-    ('Match details','Team details','player details')
+    ('Match Stats','Overall Stats','Player Stats')
 )
 
 
 #*********************************************************************************************************************
-                                                # MATCH DETAILS CODE SECTION
+                                                # MATCH STATS CODE SECTION
 # *********************************************************************************************************************
 
 
-if(user_menu=='Match details'):
+if(user_menu=='Match Stats'):
 
     col1, col2,col3= st.columns([5,1,2])
     years=send.match_df['season'].sort_values().unique().tolist()
@@ -141,13 +141,13 @@ if(user_menu=='Match details'):
         st.plotly_chart(fig1)
 
     #*********************************************************************************************************************
-                                                    # PLAYER ANALYSIS CODE SECTION
+                                                    # OVERALL STATS CODE SECTION
     # *********************************************************************************************************************
 
 
-if(user_menu=='player details'):
+if(user_menu=='Overall Stats'):
 
-    st.title("PLAYER ANALYSIS")
+    st.title("Overall Statistics")
 
     st.header("Overall Run Tally")
     st.text(' ')
@@ -159,9 +159,30 @@ if(user_menu=='player details'):
     st.table(send.get_wicket_tally(cb_wickets).style.format(subset=['economy'], formatter="{:.2f}"))
 
 
-    expander_player_stats=st.expander("Show player wise analysis")
 
-    #Expander window for player wise analysis
 
-    with expander_player_stats:
-        st.header("Player wise Analysis")
+    #*********************************************************************************************************************
+                                                    # PLAYER STATS CODE SECTION
+    # *********************************************************************************************************************
+
+
+if(user_menu=='Player Stats'):
+    st.title('Player wise Analysis')
+    col1,col2=st.columns(2)
+    with col1:
+        sb_player=st.selectbox('Select player',send.get_player_list())
+    with col2:
+        sb_season=st.selectbox('Select season',send.get_player_season(sb_player))
+
+    expander_batting=st.expander(label='Batting statistics')
+    # Batting statistics of a player
+
+    with expander_batting:
+        pass
+
+
+    expander_bowling=st.expander(label='Bowling statistics')
+    # Bowling ststistics of a player
+
+    with expander_bowling:
+        pass
