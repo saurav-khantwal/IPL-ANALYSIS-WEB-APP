@@ -9,7 +9,7 @@ import plotly.express as px
 match_df = pd.read_csv('IPL MATCH.csv')
 ball_df = pd.read_csv('UPDATED IPL BALL.csv')
 scorecard = pd.read_csv('batting_stats_every_match.csv')
-bowling_card = pd.read_csv('bowlingcard.csv')
+bowling_card = pd.read_csv('bowling_stats_every_match.csv')
 batting_tally=pd.read_csv('batting_stats .csv')
 batting_tally_season=pd.read_csv('batting_stats_season.csv')
 bowling_tally=pd.read_csv('bowling_stats.csv')
@@ -217,28 +217,56 @@ def get_bar_plot(id, inning):
     return fig
 
 
-def get_phase_plot(id, inning):
+def get_phase_plot(id, inning, bat_or_bowl):
     """This function will return a
     pie chart of runs scored in different phases of a Innings"""
 
-    data = ball_df[(ball_df['id'] == id) & (ball_df['inning'] == inning)].sort_values(by=['over', 'ball']).groupby(
-        ['batting_team', 'over'])['total_runs'].sum().reset_index()
-    data['over'] = data['over'] + 1
+    if(bat_or_bowl=='batting'):
+        data = ball_df[(ball_df['id'] == id) & (ball_df['inning'] == inning)].sort_values(by=['over', 'ball']).groupby(
+            ['batting_team', 'over'])['total_runs'].sum().reset_index()
+        data['over'] = data['over'] + 1
 
-    if (data['over'].max() <= 6):
-        x=pd.DataFrame({'Phase': [f"1 - {str(data['over'].max())}"], 'Runs': [data.loc[0:,'total_runs'].sum()]})
+        if (data['over'].max() <= 6):
+            x=pd.DataFrame({'Phase': [f"1 - {str(data['over'].max())}"], 'Runs': [data.loc[0:,'total_runs'].sum()]})
 
-    elif (data['over'].max() <= 16):
-        x = pd.DataFrame({'Phase': ['1 - 6', f"7 - {str(data['over'].max())}"],
-                          'Runs': [data.loc[0:5, 'total_runs'].sum(),data.loc[6:, 'total_runs'].sum()]})
+        elif (data['over'].max() <= 16):
+            x = pd.DataFrame({'Phase': ['1 - 6', f"7 - {str(data['over'].max())}"],
+                              'Runs': [data.loc[0:5, 'total_runs'].sum(),data.loc[6:, 'total_runs'].sum()]})
+
+        else:
+            x = pd.DataFrame({'Phase': ['1 - 6', '7 - 15', f"16 - {str(data['over'].max())}"], 'Runs': [data.loc[0:5, 'total_runs'].sum()
+                    , data.loc[6:14, 'total_runs'].sum(),data.loc[15:,'total_runs'].sum()]})
+
+        fig = go.Figure(data=[go.Pie(labels=x['Phase'], values=x['Runs'], hole=.3)])
+        colors = ['rgb(82, 215, 38)', 'rgb(255, 236, 0)', 'rgb(255, 115, 0)']
+        fig.update_traces(marker=dict(colors=colors, line=dict(color='#000000', width=2)), sort=False)
+
 
     else:
-        x = pd.DataFrame({'Phase': ['1 - 6', '7 - 15', f"16 - {str(data['over'].max())}"], 'Runs': [data.loc[0:5, 'total_runs'].sum()
-                , data.loc[6:14, 'total_runs'].sum(),data.loc[15:,'total_runs'].sum()]})
+        data = ball_df[(ball_df['id'] == id) & (ball_df['inning'] == inning)].sort_values(by=['over', 'ball']).groupby(
+            ['bowling_team', 'over'])['is_wicket'].sum().reset_index()
+        data['over'] = data['over'] + 1
 
-    fig = go.Figure(data=[go.Pie(labels=x['Phase'], values=x['Runs'], hole=.3, insidetextorientation='radial')])
-    colors = ['rgb(82, 215, 38)', 'rgb(255, 236, 0)', 'rgb(255, 115, 0)']
-    fig.update_traces(marker=dict(colors=colors,line=dict(color='#000000', width=2)), sort=False)
+        if (data['over'].max() <= 6):
+            x = pd.DataFrame({'Phase': [f"1 - {str(data['over'].max())}"], 'Wickets': [data.loc[0:, 'is_wicket'].sum()]})
+
+        elif (data['over'].max() <= 16):
+            x = pd.DataFrame({'Phase': ['1 - 6', f"7 - {str(data['over'].max())}"],
+                              'Wickets': [data.loc[0:5, 'is_wicket'].sum(), data.loc[6:, 'is_wicket'].sum()]})
+
+        else:
+            x = pd.DataFrame({'Phase': ['1 - 6', '7 - 15', f"16 - {str(data['over'].max())}"],
+                              'Wickets': [data.loc[0:5, 'is_wicket'].sum()
+                                  , data.loc[6:14, 'is_wicket'].sum(), data.loc[15:, 'is_wicket'].sum()]})
+
+        if(x['Wickets'].sum()==0):
+            return 0
+        fig = go.Figure(data=[go.Pie(labels=x['Phase'], values=x['Wickets'], hole=.3)])
+        colors = ['rgb(99, 62, 187)', 'rgb(190, 97, 202)', 'rgb(242, 188, 94)']
+        fig.update_traces(marker=dict(colors=colors, line=dict(color='#000000', width=2)), sort=False)
+
+
+
     fig.update_layout(width=800, height=400, margin=dict(t=10, b=20))
     return fig
 
@@ -275,6 +303,9 @@ def get_worm_plot(id):
 
 
 def get_run_tally(cb):
+    """This function will return
+    the run tally of IPL"""
+
     x=batting_tally[['batsman','Innings','batsman_runs','Average','strike_rate','High_score','Half_Centuries',
                           'Centuries']].reset_index(drop=True)
     x.index=x.index+1
@@ -284,6 +315,9 @@ def get_run_tally(cb):
 
 
 def get_wicket_tally(cb):
+    """This function will return
+    the Wicket tallly of IPL"""
+
     bowling_tally.reset_index(drop=True)
     bowling_tally.index=bowling_tally.index+1
     bowling_tally.rename(columns={'four_wicket':'4W_Hall','five_wicket':'5W_Hall'},inplace=True)
@@ -296,16 +330,25 @@ def get_wicket_tally(cb):
 
 
 def get_player_list():
+    """This function will return
+    all IPL players list for the select box"""
+
     return (batting_tally['batsman'].append(bowling_tally['bowler'])).unique()
 
 
 def get_player_season(sb):
+    """This function will return
+    the modified season for the select box according to the player"""
+
     seasons = list((batting_tally_season.loc[batting_tally_season['batsman']==sb,'season'].
     append(bowling_tally_season.loc[bowling_tally_season['bowler']==sb,'season'])).unique())
     seasons.insert(0,'Overall')
     return seasons
 
 def get_batting_stats(player,season):
+    """This function will return
+    the batting stats of the player"""
+
     if(season=='Overall'):
         return batting_tally[batting_tally['batsman']==player]
     else:
@@ -313,8 +356,69 @@ def get_batting_stats(player,season):
                                     (batting_tally_season['season']==season)]
 
 def get_bowling_stats(player,season):
+    """This function will return
+    the bowing stats of the player"""
+
     if (season == 'Overall'):
         return bowling_tally[bowling_tally['bowler'] == player]
     else:
         return bowling_tally_season[(bowling_tally_season['bowler'] == player) &
                                     (bowling_tally_season['season'] == season)]
+
+
+
+
+#*****************************THIS SECTION WILL RETURN PLOTS FOR PLAYER ANALYSIS SECTION*********************
+
+
+def get_performance_batting(player,season):
+    """This function will return
+    the plots of batsman performance"""
+
+    if (season != 'Overall'):
+        scores = scorecard.loc[(scorecard['batsman'] == player) &
+                               (scorecard['season'] == season), 'batsman_runs'].reset_index(drop=True)
+        fig = px.histogram(scores, x="batsman_runs")
+
+    else:
+        scores = batting_tally_season.loc[
+            batting_tally_season['batsman'] == player, ['season', 'batsman_runs','Innings']].set_index('season')
+        scores.index = scores.index.astype(str)
+        fig = px.line(scores, x=scores.index, y="batsman_runs", markers=True,hover_data=[scores.index, "Innings",'batsman_runs'])
+        fig.update_xaxes(showgrid=False)
+        # fig.data[0].line.color = 'rgb(255,0,0)'
+
+
+    fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
+    fig.update_layout(hoverlabel=dict(
+        bgcolor="white",
+        font_size=16,
+        font_family="Rockwell"),width=900, height=400, margin=dict(t=10, b=20))
+    return fig
+
+
+def get_performance_bowling(player,season):
+    """This function will return
+    the plots of bowler's performance"""
+
+    if (season != 'Overall'):
+        scores = bowling_card.loc[(bowling_card['bowler'] == player) &
+                               (bowling_card['season'] == season), "bowler's_wicket"].reset_index(drop=True)
+        fig = px.histogram(scores, x="bowler's_wicket")
+
+    else:
+        scores = bowling_tally_season.loc[
+            bowling_tally_season['bowler'] == player, ['season', 'wickets','match']]
+        scores.sort_values(by='season',inplace=True)
+        scores.season = scores.season.astype(str)
+        fig = px.line(scores, x=scores.season, y="wickets", markers=True,hover_data=[scores.season, "match",'wickets'])
+        fig.update_xaxes(showgrid=False)
+        # fig.data[0].line.color = 'rgb(255,0,0)'
+
+
+    fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
+    fig.update_layout(hoverlabel=dict(
+        bgcolor="white",
+        font_size=16,
+        font_family="Rockwell"),width=900, height=400, margin=dict(t=10, b=20))
+    return fig

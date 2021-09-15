@@ -122,16 +122,34 @@ if(user_menu=='Match Stats'):
         st.plotly_chart(fig2)
         st.write('')
 
-        #********Phase plot of Teams
+        #********Phase plot of Runs scored
 
         st.title("Run scored in different Phases")
         st.subheader('First Innings - ' + send.get_team_name(match_id, 1, 'inning', 'batting') + ' ' + send.get_total(match_id,1,'inning'))
-        fig1=send.get_phase_plot(match_id,1)
+        fig1=send.get_phase_plot(match_id,1,'batting')
         st.plotly_chart(fig1)
 
         st.subheader('Second Innings - ' + send.get_team_name(match_id, 2, 'inning', 'batting') + ' ' + send.get_total(match_id,2,'inning'))
-        fig2=send.get_phase_plot(match_id,2)
+        fig2=send.get_phase_plot(match_id,2,'batting')
         st.plotly_chart(fig2)
+        st.write('')
+
+        #********Phase plot of Wickets taken
+
+        st.title("Wickets Taken in different Phases")
+        st.subheader('First Innings - ' + send.get_team_name(match_id, 1, 'inning', 'batting') + ' ' + send.get_total(match_id,1,'inning'))
+        fig1=send.get_phase_plot(match_id,1,'bowling')
+        if(fig1==0):
+            st.header('Team did not lose any wicket')
+        else:
+            st.plotly_chart(fig1)
+
+        st.subheader('Second Innings - ' + send.get_team_name(match_id, 2, 'inning', 'batting') + ' ' + send.get_total(match_id,2,'inning'))
+        fig2=send.get_phase_plot(match_id,2,'bowling')
+        if (fig2 == 0):
+            st.text('Team did not lose any wicket')
+        else:
+            st.plotly_chart(fig2)
         st.write('')
 
         #*******Run worm of teams
@@ -175,6 +193,7 @@ if(user_menu=='Player Stats'):
         sb_season=st.selectbox('Select season',send.get_player_season(sb_player))
 
     expander_batting=st.expander(label='Batting statistics')
+
     # Batting statistics of a player
 
     with expander_batting:
@@ -208,9 +227,26 @@ if(user_menu=='Player Stats'):
                 st.header("100's")
                 st.subheader(stats['Centuries'].unique()[0])
 
+            #***********************batting analysis plots***************************
+
+            st.write(' ')
+            st.write(' ')
+            st.title('Batting Analysis')
+            st.write(' ')
+
+            #***********Performance plot of batsman
+            fig1=send.get_performance_batting(sb_player,sb_season)
+            if(sb_season=='Overall'):
+                st.header('Runs scored over the Seasons')
+            else:
+                st.header('Runs scored in season ' + str(sb_season))
+            st.plotly_chart(fig1)
+
+
 
 
     expander_bowling=st.expander(label='Bowling statistics')
+
     # Bowling statistics of a player
 
     with expander_bowling:
@@ -238,3 +274,20 @@ if(user_menu=='Player Stats'):
             with col6:
                 st.header('5W')
                 st.subheader(stats['five'].unique()[0])
+
+            st.write(' ')
+            st.write(' ')
+            st.title("Bowling Analysis")
+
+            # ***********************bowling analysis plots***************************
+
+
+            # ***********Performance plot of bowler
+
+            fig1 = send.get_performance_bowling(sb_player, sb_season)
+            if (sb_season == 'Overall'):
+                st.header('Wickets taken over the Seasons')
+            else:
+                st.header('Wickets taken in ' + str(sb_season))
+
+            st.plotly_chart(fig1)
