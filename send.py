@@ -15,7 +15,12 @@ batting_tally_season=pd.read_csv('batting_stats_season.csv')
 bowling_tally=pd.read_csv('bowling_stats.csv')
 bowling_tally_season=pd.read_csv('bowling_stats_season.csv')
 
+batting_tally_season.rename(columns={'innings':'Innings','valid_ball':'balls_faced','is_four':'total_fours',
+                                     'is_six':'total_sixes','fifty':'Half_Centuries','century':'Centuries',
+                                     'high_score':'High_score','average':'Average'},inplace=True)
 
+
+bowling_tally.rename(columns={'four_wicket':'four','five_wicket':'five'},inplace=True)
 
 #***********************************THIS SECTION WILL RETURN FOR THE MATCH STATS SECTION*********************
 
@@ -299,3 +304,17 @@ def get_player_season(sb):
     append(bowling_tally_season.loc[bowling_tally_season['bowler']==sb,'season'])).unique())
     seasons.insert(0,'Overall')
     return seasons
+
+def get_batting_stats(player,season):
+    if(season=='Overall'):
+        return batting_tally[batting_tally['batsman']==player]
+    else:
+        return batting_tally_season[(batting_tally_season['batsman']==player) &
+                                    (batting_tally_season['season']==season)]
+
+def get_bowling_stats(player,season):
+    if (season == 'Overall'):
+        return bowling_tally[bowling_tally['bowler'] == player]
+    else:
+        return bowling_tally_season[(bowling_tally_season['bowler'] == player) &
+                                    (bowling_tally_season['season'] == season)]

@@ -167,7 +167,7 @@ if(user_menu=='Overall Stats'):
 
 
 if(user_menu=='Player Stats'):
-    st.title('Player wise Analysis')
+    st.title('Player Analysis')
     col1,col2=st.columns(2)
     with col1:
         sb_player=st.selectbox('Select player',send.get_player_list())
@@ -178,11 +178,63 @@ if(user_menu=='Player Stats'):
     # Batting statistics of a player
 
     with expander_batting:
-        pass
+        stats = send.get_batting_stats(sb_player, sb_season)
+        if(stats.shape[0]==0):
+            st.subheader('Did not Bat')
+        else:
+            col1,col2,col3,col4=st.columns(4)
+            with col1:
+                st.header('Batsman')
+                st.subheader(stats['batsman'].unique()[0])
+                st.write(' ')
+                st.header('Strike Rate')
+                st.subheader(stats['strike_rate'].unique()[0])
+            with col2:
+                st.header('Innings')
+                st.subheader(stats['Innings'].unique()[0])
+                st.write(' ')
+                st.header('High Score')
+                st.subheader(stats['High_score'].unique()[0])
+            with col3:
+                st.header('Runs')
+                st.subheader(stats['batsman_runs'].unique()[0])
+                st.write(' ')
+                st.header("50's")
+                st.subheader(stats['Half_Centuries'].unique()[0])
+            with col4:
+                st.header('Average')
+                st.subheader(stats['Average'].unique()[0])
+                st.write(' ')
+                st.header("100's")
+                st.subheader(stats['Centuries'].unique()[0])
+
 
 
     expander_bowling=st.expander(label='Bowling statistics')
-    # Bowling ststistics of a player
+    # Bowling statistics of a player
 
     with expander_bowling:
-        pass
+        stats = send.get_bowling_stats(sb_player, sb_season)
+        if(stats.shape[0]==0):
+            st.subheader('Did not Bowl')
+        else:
+            col1,col2,col3,col4,col5,col6=st.columns(6)
+
+            with col1:
+                st.header('Innings')
+                st.subheader(stats['match'].unique()[0])
+            with col2:
+                st.header('Wickets')
+                st.subheader(stats['wickets'].unique()[0])
+            with col3:
+                st.header('Economy')
+                st.subheader(stats['economy'].unique()[0])
+            with col4:
+                st.header('Best')
+                st.subheader(stats['best'].unique()[0])
+            with col5:
+                st.header('4W')
+                st.subheader(stats['four'].unique()[0])
+            with col6:
+                st.header('5W')
+                st.subheader(stats['five'].unique()[0])
