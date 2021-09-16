@@ -320,7 +320,8 @@ def get_wicket_tally(cb,season):
         x=bowling_tally.reset_index(drop=True)
     else:
         x=bowling_tally_season.loc[bowling_tally_season['season']==season].reset_index(drop=True)
-        x=x[['bowler','match','wickets','economy','best','4W Hall','5W Hall']]
+        
+    x = x[['bowler', 'match', 'wickets', 'economy', 'best', '4W Hall', '5W Hall']]
 
 
     x.index=x.index+1
