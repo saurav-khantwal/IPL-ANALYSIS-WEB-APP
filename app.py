@@ -10,7 +10,7 @@ st.set_page_config(page_title=None, page_icon=None, layout='wide', initial_sideb
 st.sidebar.title('IPL ANALYSIS')
 user_menu=st.sidebar.radio(
     'select an option',
-    ('Match Stats','Overall Stats','Player Stats')
+    ('MATCH STATISTICS','IPL STATISTICS','PLAYER STATISTICS')
 )
 
 
@@ -19,7 +19,7 @@ user_menu=st.sidebar.radio(
 # *********************************************************************************************************************
 
 
-if(user_menu=='Match Stats'):
+if(user_menu=='MATCH STATISTICS'):
 
     col1, col2,col3= st.columns([5,1,2])
     years=send.match_df['season'].sort_values().unique().tolist()
@@ -163,18 +163,28 @@ if(user_menu=='Match Stats'):
     # *********************************************************************************************************************
 
 
-if(user_menu=='Overall Stats'):
+if(user_menu=='IPL STATISTICS'):
 
-    st.title("Overall Statistics")
-
-    st.header("Overall Run Tally")
+    col1,col2=st.columns(2)
+    with col1:
+        years = send.match_df['season'].sort_values().unique().tolist()
+        years.insert(0, 'All Time')
+        sb_season=st.selectbox('Select Season',years)
+    if(sb_season=='All Time'):
+        st.header("Overall Run Tally")
+    else:
+        st.header("Run tally of season " + str(sb_season))
     st.text(' ')
     cb_runs=st.checkbox(label='Show Full Run Tally')
-    st.table(send.get_run_tally(cb_runs).style.format(subset=['Average','strike_rate'], formatter="{:.1f}"))
-    st.header("Overall Wicket Tally")
+    st.table(send.get_run_tally(cb_runs,sb_season).style.format(subset=['Average','strike_rate'], formatter="{:.1f}"))
+
+    if (sb_season == 'All Time'):
+        st.header("Overall Wicket Tally")
+    else:
+        st.header("Wicket tally of season " + str(sb_season))
     st.text(' ')
     cb_wickets=st.checkbox(label='Show Full Wicket Tally')
-    st.table(send.get_wicket_tally(cb_wickets).style.format(subset=['economy'], formatter="{:.2f}"))
+    st.table(send.get_wicket_tally(cb_wickets,sb_season).style.format(subset=['economy'], formatter="{:.2f}"))
 
 
 
@@ -184,7 +194,7 @@ if(user_menu=='Overall Stats'):
     # *********************************************************************************************************************
 
 
-if(user_menu=='Player Stats'):
+if(user_menu=='PLAYER STATISTICS'):
     st.title('Player Analysis')
     col1,col2=st.columns(2)
     with col1:
@@ -270,10 +280,10 @@ if(user_menu=='Player Stats'):
                 st.subheader(stats['best'].unique()[0])
             with col5:
                 st.header('4W')
-                st.subheader(stats['four'].unique()[0])
+                st.subheader(stats['4W Hall'].unique()[0])
             with col6:
                 st.header('5W')
-                st.subheader(stats['five'].unique()[0])
+                st.subheader(stats['5W Hall'].unique()[0])
 
             st.write(' ')
             st.write(' ')

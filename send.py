@@ -15,12 +15,8 @@ batting_tally_season=pd.read_csv('batting_stats_season.csv')
 bowling_tally=pd.read_csv('bowling_stats.csv')
 bowling_tally_season=pd.read_csv('bowling_stats_season.csv')
 
-batting_tally_season.rename(columns={'innings':'Innings','valid_ball':'balls_faced','is_four':'total_fours',
-                                     'is_six':'total_sixes','fifty':'Half_Centuries','century':'Centuries',
-                                     'high_score':'High_score','average':'Average'},inplace=True)
 
 
-bowling_tally.rename(columns={'four_wicket':'four','five_wicket':'five'},inplace=True)
 
 #***********************************THIS SECTION WILL RETURN FOR THE MATCH STATS SECTION*********************
 
@@ -65,16 +61,14 @@ def get_scorecard(id, inning, type):
 
     if (type == 'batting'):
         x = scorecard.loc[(scorecard['id'] == id) & (scorecard['inning'] == inning),
-                          ['batsman', 'batsman_runs', 'valid_ball', 'strike_rate', 'info']]. \
-            sort_values('batsman_runs', ascending=False).reset_index(drop=True)
+                          ['batsman', 'batsman_runs', 'valid_ball', 'strike_rate', 'info']].reset_index(drop=True)
         x.index = x.index + 1
         return x
 
     if (type == 'bowling'):
         x = bowling_card.loc[(bowling_card['id'] == id) & (bowling_card['inning'] == inning),
-                             ['bowler', "over_bowled", "bowler's_runs", "bowler's_wicket", 'economy']]. \
-            sort_values(by=["bowler's_wicket", "over_bowled", 'economy'], ascending=[False, False, True]).reset_index(
-            drop=True)
+                             ['bowler', "over_bowled", "bowler's_runs", "bowler's_wicket", 'economy']].\
+            reset_index(drop=True)
         x_temp=x['over_bowled'].values
         x_temp=[str(int(i)) if int(i) == i else str(i) for i in x_temp]
         x['over_bowled']=x_temp
@@ -196,7 +190,7 @@ def get_contribution_plot(id, inning):
     df_scores = df_scores.append(extras, ignore_index=True)
 
 
-    fig = go.Figure(data=[go.Pie(labels=df_scores['batsman'], values=df_scores['batsman_runs'].values, hole=.3,insidetextorientation='radial')])
+    fig = go.Figure(data=[go.Pie(labels=df_scores['batsman'], values=df_scores['batsman_runs'].values, hole=.5,insidetextorientation='radial')])
     fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
     fig.update_layout(width=800,height=400,margin=dict(t=10,b=20))
     return fig
@@ -222,7 +216,7 @@ def get_phase_plot(id, inning, bat_or_bowl):
     pie chart of runs scored in different phases of a Innings"""
 
     if(bat_or_bowl=='batting'):
-        data = ball_df[(ball_df['id'] == id) & (ball_df['inning'] == inning)].sort_values(by=['over', 'ball']).groupby(
+        data = ball_df[(ball_df['id'] == id) & (ball_df['inning'] == inning)].groupby(
             ['batting_team', 'over'])['total_runs'].sum().reset_index()
         data['over'] = data['over'] + 1
 
@@ -237,13 +231,13 @@ def get_phase_plot(id, inning, bat_or_bowl):
             x = pd.DataFrame({'Phase': ['1 - 6', '7 - 15', f"16 - {str(data['over'].max())}"], 'Runs': [data.loc[0:5, 'total_runs'].sum()
                     , data.loc[6:14, 'total_runs'].sum(),data.loc[15:,'total_runs'].sum()]})
 
-        fig = go.Figure(data=[go.Pie(labels=x['Phase'], values=x['Runs'], hole=.3)])
+        fig = go.Figure(data=[go.Pie(labels=x['Phase'], values=x['Runs'], hole=.5)])
         colors = ['rgb(82, 215, 38)', 'rgb(255, 236, 0)', 'rgb(255, 115, 0)']
         fig.update_traces(marker=dict(colors=colors, line=dict(color='#000000', width=2)), sort=False)
 
 
     else:
-        data = ball_df[(ball_df['id'] == id) & (ball_df['inning'] == inning)].sort_values(by=['over', 'ball']).groupby(
+        data = ball_df[(ball_df['id'] == id) & (ball_df['inning'] == inning)].groupby(
             ['bowling_team', 'over'])['is_wicket'].sum().reset_index()
         data['over'] = data['over'] + 1
 
@@ -261,7 +255,7 @@ def get_phase_plot(id, inning, bat_or_bowl):
 
         if(x['Wickets'].sum()==0):
             return 0
-        fig = go.Figure(data=[go.Pie(labels=x['Phase'], values=x['Wickets'], hole=.3)])
+        fig = go.Figure(data=[go.Pie(labels=x['Phase'], values=x['Wickets'], hole=.5)])
         colors = ['rgb(99, 62, 187)', 'rgb(190, 97, 202)', 'rgb(242, 188, 94)']
         fig.update_traces(marker=dict(colors=colors, line=dict(color='#000000', width=2)), sort=False)
 
@@ -276,7 +270,7 @@ def get_worm_plot(id):
     """This function will return
     the worm plot"""
 
-    data = ball_df[ball_df['id'] == id].sort_values(by=['inning', 'over', 'ball']).groupby(
+    data = ball_df[ball_df['id'] == id].groupby(
         ['batting_team', 'inning', 'over'])['total_runs'].sum().reset_index()
     data['over'] = data['over'] + 1
     data.sort_values(by=['inning', 'over'], inplace=True)
@@ -302,28 +296,37 @@ def get_worm_plot(id):
 #***********************************THIS SECTION WILL RETURN FOR THE OVERALL STATS SECTION*********************
 
 
-def get_run_tally(cb):
+def get_run_tally(cb,season):
     """This function will return
     the run tally of IPL"""
-
-    x=batting_tally[['batsman','Innings','batsman_runs','Average','strike_rate','High_score','Half_Centuries',
+    if(season=='All Time'):
+        x=batting_tally[['batsman','Innings','batsman_runs','Average','strike_rate','High_score','Half_Centuries',
                           'Centuries']].reset_index(drop=True)
+    else:
+        x=batting_tally_season.loc[batting_tally_season['season']==season,['batsman','Innings','batsman_runs',
+                                                                           'Average','strike_rate','High_score',
+                                                                           'Half_Centuries','Centuries']].reset_index(drop=True)
     x.index=x.index+1
     if(cb):
         return x
-    return x.head(10)
+    return x.head(5)
 
 
-def get_wicket_tally(cb):
+def get_wicket_tally(cb,season):
     """This function will return
-    the Wicket tallly of IPL"""
+    the Wicket tally of IPL"""
 
-    bowling_tally.reset_index(drop=True)
-    bowling_tally.index=bowling_tally.index+1
-    bowling_tally.rename(columns={'four_wicket':'4W_Hall','five_wicket':'5W_Hall'},inplace=True)
+    if(season=='All Time'):
+        x=bowling_tally.reset_index(drop=True)
+    else:
+        x=bowling_tally_season.loc[bowling_tally_season['season']==season].reset_index(drop=True)
+        x=x[['bowler','match','wickets','economy','best','4W Hall','5W Hall']]
+
+
+    x.index=x.index+1
     if(cb):
-        return bowling_tally
-    return bowling_tally.head(10)
+        return x
+    return x.head(5)
 
 
 #***********************************THIS SECTION WILL RETURN FOR THE PLAYER STATS SECTION*********************
@@ -340,8 +343,10 @@ def get_player_season(sb):
     """This function will return
     the modified season for the select box according to the player"""
 
-    seasons = list((batting_tally_season.loc[batting_tally_season['batsman']==sb,'season'].
-    append(bowling_tally_season.loc[bowling_tally_season['bowler']==sb,'season'])).unique())
+    seasons = (batting_tally_season.loc[batting_tally_season['batsman']==sb,'season'].
+    append(bowling_tally_season.loc[bowling_tally_season['bowler']==sb,'season'])).unique()
+    seasons=np.sort(seasons)
+    seasons=list(seasons)
     seasons.insert(0,'Overall')
     return seasons
 
