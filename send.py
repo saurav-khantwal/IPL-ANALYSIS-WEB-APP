@@ -10,7 +10,7 @@ match_df = pd.read_csv('IPL MATCH.csv')
 ball_df = pd.read_csv('UPDATED IPL BALL.csv')
 scorecard = pd.read_csv('batting_stats_every_match.csv')
 bowling_card = pd.read_csv('bowling_stats_every_match.csv')
-batting_tally=pd.read_csv('batting_stats .csv')
+batting_tally=pd.read_csv('batting_stats.csv')
 batting_tally_season=pd.read_csv('batting_stats_season.csv')
 bowling_tally=pd.read_csv('bowling_stats.csv')
 bowling_tally_season=pd.read_csv('bowling_stats_season.csv')
@@ -376,24 +376,25 @@ def get_bowling_stats(player,season):
 #*****************************THIS SECTION WILL RETURN PLOTS FOR PLAYER ANALYSIS SECTION*********************
 
 
-def get_performance_batting(player,season):
+def get_performance_batting(player,season,type):
     """This function will return
     the plots of batsman performance"""
 
     if (season != 'Overall'):
         scores = scorecard.loc[(scorecard['batsman'] == player) &
-                               (scorecard['season'] == season), 'batsman_runs'].reset_index(drop=True)
+                        (scorecard['season'] == season), type].reset_index(drop=True)
         if(sum(scores.values)==0):
-            return 0
-        fig = px.histogram(scores, x="batsman_runs")
+                return 0
+        fig = px.histogram(scores, x=type)
+
 
     else:
         scores = batting_tally_season.loc[
-            batting_tally_season['batsman'] == player, ['season', 'batsman_runs','Innings']].set_index('season')
+            batting_tally_season['batsman'] == player, ['season', type,'Innings']].set_index('season')
         scores.index = scores.index.astype(str)
-        if(scores['batsman_runs'].sum()==0):
+        if(scores[type].sum()==0):
             return 0
-        fig = px.line(scores, x=scores.index, y="batsman_runs", markers=True,hover_data=[scores.index, "Innings",'batsman_runs'])
+        fig = px.line(scores, x=scores.index, y=type, markers=True,hover_data=[scores.index, "Innings",type])
         fig.update_xaxes(showgrid=False)
         # fig.data[0].line.color = 'rgb(255,0,0)'
 
@@ -429,6 +430,32 @@ def get_performance_bowling(player,season):
         fig.update_xaxes(showgrid=False)
         # fig.data[0].line.color = 'rgb(255,0,0)'
 
+    fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
+    fig.update_layout(hoverlabel=dict(
+        bgcolor="white",
+        font_size=16,
+        font_family="Rockwell"),width=900, height=400, margin=dict(t=10, b=20))
+    return fig
+
+
+def get_bowling_economy(player,season):
+    if (season != 'Overall'):
+        scores = bowling_card.loc[(bowling_card['bowler'] == player) &
+                               (bowling_card['season'] == season), "economy"].reset_index(drop=True)
+        if(sum(scores.values)==0):
+            return 0
+        fig = px.histogram(scores, x="economy")
+
+    else:
+        scores = bowling_tally_season.loc[
+            bowling_tally_season['bowler'] == player, ['season', 'economy','match']]
+        # scores.sort_values(by='season',inplace=True)
+        scores.season = scores.season.astype(str)
+        if(scores['economy'].sum()==0):
+            return 0
+        fig = px.line(scores, x=scores.season, y="economy", markers=True,hover_data=[scores.season, "match",'economy'])
+        fig.update_xaxes(showgrid=False)
+        # fig.data[0].line.color = 'rgb(255,0,0)'
 
     fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
     fig.update_layout(hoverlabel=dict(
@@ -436,6 +463,7 @@ def get_performance_bowling(player,season):
         font_size=16,
         font_family="Rockwell"),width=900, height=400, margin=dict(t=10, b=20))
     return fig
+
 
 
 
