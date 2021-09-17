@@ -24,7 +24,7 @@ def send_match():
     """This function will send the Imputed
     matches for the match select box"""
 
-    x = match_df.sort_values(by=['date', 'id'], ascending=True).reset_index(drop=True)
+    x = match_df.reset_index(drop=True)
     x['index'] = x.index + 1
     x['index'] = x['index'].astype(str)
     x['Match'] = x['index'] + ')  ' + x['team1'] + ' VS ' + x['team2']
@@ -215,21 +215,24 @@ def get_phase_plot(id, inning, bat_or_bowl):
     """This function will return a
     pie chart of runs scored in different phases of a Innings"""
 
+    phase1 = 0
+    phase2 = 0
+    phase3 = 0
+
     if(bat_or_bowl=='batting'):
         data = ball_df[(ball_df['id'] == id) & (ball_df['inning'] == inning)].groupby(
-            ['batting_team', 'over'])['total_runs'].sum().reset_index()
+            ['over'])['total_runs'].sum().reset_index()
         data['over'] = data['over'] + 1
 
-        if (data['over'].max() <= 6):
-            x=pd.DataFrame({'Phase': [f"1 - {str(data['over'].max())}"], 'Runs': [data.loc[0:,'total_runs'].sum()]})
+        for x in data['over'].values:
+            if x <= 6:
+                phase1 = phase1 + data.loc[data['over'] == x, 'total_runs'].values[0]
+            elif (x >= 7) and (x <= 15):
+                phase2 = phase2 + data.loc[data['over'] == x, 'total_runs'].values[0]
+            else:
+                phase3 = phase3 + data.loc[data['over'] == x, 'total_runs'].values[0]
 
-        elif (data['over'].max() <= 16):
-            x = pd.DataFrame({'Phase': ['1 - 6', f"7 - {str(data['over'].max())}"],
-                              'Runs': [data.loc[0:5, 'total_runs'].sum(),data.loc[6:, 'total_runs'].sum()]})
-
-        else:
-            x = pd.DataFrame({'Phase': ['1 - 6', '7 - 15', f"16 - {str(data['over'].max())}"], 'Runs': [data.loc[0:5, 'total_runs'].sum()
-                    , data.loc[6:14, 'total_runs'].sum(),data.loc[15:,'total_runs'].sum()]})
+        x = pd.DataFrame({'Phase': ['1 - 6', '7 - 15', f"16 - 20"], 'Runs': [phase1, phase2, phase3]})
 
         fig = go.Figure(data=[go.Pie(labels=x['Phase'], values=x['Runs'], hole=.5)])
         colors = ['rgb(82, 215, 38)', 'rgb(255, 236, 0)', 'rgb(255, 115, 0)']
@@ -238,27 +241,23 @@ def get_phase_plot(id, inning, bat_or_bowl):
 
     else:
         data = ball_df[(ball_df['id'] == id) & (ball_df['inning'] == inning)].groupby(
-            ['bowling_team', 'over'])['is_wicket'].sum().reset_index()
+            ['over'])['is_wicket'].sum().reset_index()
         data['over'] = data['over'] + 1
 
-        if (data['over'].max() <= 6):
-            x = pd.DataFrame({'Phase': [f"1 - {str(data['over'].max())}"], 'Wickets': [data.loc[0:, 'is_wicket'].sum()]})
 
-        elif (data['over'].max() <= 16):
-            x = pd.DataFrame({'Phase': ['1 - 6', f"7 - {str(data['over'].max())}"],
-                              'Wickets': [data.loc[0:5, 'is_wicket'].sum(), data.loc[6:, 'is_wicket'].sum()]})
+        for x in data['over'].values:
+            if x <= 6:
+                phase1 = phase1 + data.loc[data['over'] == x, "is_wicket"].values[0]
+            elif (x >= 7) and (x <= 15):
+                phase2 = phase2 + data.loc[data['over'] == x, "is_wicket"].values[0]
+            else:
+                phase3 = phase3 + data.loc[data['over'] == x, "is_wicket"].values[0]
 
-        else:
-            x = pd.DataFrame({'Phase': ['1 - 6', '7 - 15', f"16 - {str(data['over'].max())}"],
-                              'Wickets': [data.loc[0:5, 'is_wicket'].sum()
-                                  , data.loc[6:14, 'is_wicket'].sum(), data.loc[15:, 'is_wicket'].sum()]})
+        x = pd.DataFrame({'Phase': ['1 - 6', '7 - 15', f"16 - 20"], 'Wickets': [phase1, phase2, phase3]})
 
-        if(x['Wickets'].sum()==0):
-            return 0
         fig = go.Figure(data=[go.Pie(labels=x['Phase'], values=x['Wickets'], hole=.5)])
         colors = ['rgb(99, 62, 187)', 'rgb(190, 97, 202)', 'rgb(242, 188, 94)']
         fig.update_traces(marker=dict(colors=colors, line=dict(color='#000000', width=2)), sort=False)
-
 
 
     fig.update_layout(width=800, height=400, margin=dict(t=10, b=20))
@@ -384,6 +383,8 @@ def get_performance_batting(player,season):
     if (season != 'Overall'):
         scores = scorecard.loc[(scorecard['batsman'] == player) &
                                (scorecard['season'] == season), 'batsman_runs'].reset_index(drop=True)
+        if(sum(scores.values)==0):
+            return 0
         fig = px.histogram(scores, x="batsman_runs")
 
     else:
@@ -408,15 +409,20 @@ def get_performance_bowling(player,season):
     the plots of bowler's performance"""
 
     if (season != 'Overall'):
-        scores = bowling_card.loc[(bowling_card['bowler'] == player) &
-                               (bowling_card['season'] == season), "bowler's_wicket"].reset_index(drop=True)
+        temp=ball_df.groupby(['id','bowler','season'])["bowler's_wicket"].sum().reset_index()
+        scores = temp.loc[(temp['bowler'] == player) &
+                               (temp['season'] == season), "bowler's_wicket"].reset_index(drop=True)
+        if(sum(scores.values)==0):
+            return 0
         fig = px.histogram(scores, x="bowler's_wicket")
 
     else:
         scores = bowling_tally_season.loc[
             bowling_tally_season['bowler'] == player, ['season', 'wickets','match']]
-        scores.sort_values(by='season',inplace=True)
+        # scores.sort_values(by='season',inplace=True)
         scores.season = scores.season.astype(str)
+        if(scores['wickets'].sum()==0):
+            return 0
         fig = px.line(scores, x=scores.season, y="wickets", markers=True,hover_data=[scores.season, "match",'wickets'])
         fig.update_xaxes(showgrid=False)
         # fig.data[0].line.color = 'rgb(255,0,0)'
@@ -427,4 +433,72 @@ def get_performance_bowling(player,season):
         bgcolor="white",
         font_size=16,
         font_family="Rockwell"),width=900, height=400, margin=dict(t=10, b=20))
+    return fig
+
+
+
+def get_performance_phase(player,season,type):
+    if (type == 'batting'):
+
+        if(season=='Overall'):
+            data = ball_df[(ball_df['batsman'] == player)].groupby(
+                ['over'])['batsman_runs'].sum().reset_index()
+        else:
+            data = ball_df[(ball_df['batsman'] == player) & (ball_df['season']==season)].groupby(
+                ['over'])['batsman_runs'].sum().reset_index()
+
+        data['over'] = data['over'] + 1
+
+        phase1 = 0
+        phase2 = 0
+        phase3 = 0
+
+        for x in data['over'].values:
+            if x <= 6:
+                phase1 = phase1 + data.loc[data['over'] == x, 'batsman_runs'].values[0]
+            elif (x >= 7) and (x <= 15):
+                phase2 = phase2 + data.loc[data['over'] == x, 'batsman_runs'].values[0]
+            else:
+                phase3 = phase3 + data.loc[data['over'] == x, 'batsman_runs'].values[0]
+
+        x = pd.DataFrame({'Phase': ['1 - 6', '7 - 15', f"16 - 20"], 'Runs': [phase1, phase2, phase3]})
+
+        fig = go.Figure(data=[go.Pie(labels=x['Phase'], values=x['Runs'], hole=.5)])
+        colors = ['rgb(82, 215, 38)', 'rgb(255, 236, 0)', 'rgb(255, 115, 0)']
+        fig.update_traces(marker=dict(colors=colors, line=dict(color='#000000', width=2)), sort=False)
+
+
+    else:
+
+        if(season=='Overall'):
+            data = ball_df[(ball_df['bowler'] == player)].groupby(
+                ['over'])["bowler's_wicket"].sum().reset_index()
+        else:
+            data = ball_df[(ball_df['bowler'] == player) & (ball_df['season']==season)].groupby(
+                ['over'])["bowler's_wicket"].sum().reset_index()
+
+        data['over'] = data['over'] + 1
+
+        phase1 = 0
+        phase2 = 0
+        phase3 = 0
+
+        for x in data['over'].values:
+            if x <= 6:
+                phase1 = phase1 + data.loc[data['over'] == x, "bowler's_wicket"].values[0]
+            elif (x >= 7) and (x <= 15):
+                phase2 = phase2 + data.loc[data['over'] == x, "bowler's_wicket"].values[0]
+            else:
+                phase3 = phase3 + data.loc[data['over'] == x, "bowler's_wicket"].values[0]
+
+        x = pd.DataFrame({'Phase': ['1 - 6', '7 - 15', f"16 - 20"], 'Wickets': [phase1, phase2, phase3]})
+
+        fig = go.Figure(data=[go.Pie(labels=x['Phase'], values=x["Wickets"], hole=.5)])
+        colors = ['rgb(99, 62, 187)', 'rgb(190, 97, 202)', 'rgb(242, 188, 94)']
+        fig.update_traces(marker=dict(colors=colors, line=dict(color='#000000', width=2)), sort=False)
+
+    if (phase1 == 0 and phase2 == 0 and phase3 == 0):
+        return 0
+
+    fig.update_layout(width=800, height=400, margin=dict(t=10, b=20))
     return fig
