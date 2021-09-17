@@ -204,7 +204,8 @@ if(user_menu=='PLAYER STATISTICS'):
 
     expander_batting=st.expander(label='Batting statistics')
 
-    # Batting statistics of a player
+    #********************************BATTING STATISTICS OF A PLAYER*********************************
+    #***********************************************************************************************
 
     with expander_batting:
         stats = send.get_batting_stats(sb_player, sb_season)
@@ -237,14 +238,14 @@ if(user_menu=='PLAYER STATISTICS'):
                 st.header("100's")
                 st.subheader(stats['Centuries'].unique()[0])
 
-            #***********************batting analysis plots***************************
+            #***********************BATTING ANALYSIS PLOTS***************************
 
             st.write(' ')
             st.write(' ')
             st.title('Batting Analysis')
             st.write(' ')
 
-            #***********Performance plot of batsman
+            #***********PERFORMANCE PLOT OF BATSMAN
 
             fig1=send.get_performance_batting(sb_player,sb_season)
             if(fig1==0):
@@ -256,7 +257,7 @@ if(user_menu=='PLAYER STATISTICS'):
                     st.header(f'Runs scored by {sb_player} in season ' + str(sb_season))
                 st.plotly_chart(fig1)
 
-            # ***********Phase plot of batsman
+            #******************PHASE PLOT OF BATSMAN
 
             fig1=send.get_performance_phase(sb_player,sb_season,'batting')
             if(fig1==0):
@@ -268,10 +269,24 @@ if(user_menu=='PLAYER STATISTICS'):
                     st.header(f'Runs scored in different Phases by {sb_player} in season ' + str(sb_season))
                 st.plotly_chart(fig1)
 
+            # ******************BOX PLOT OF BATSMAN RUNS
+
+            fig1=send.get_performance_box(sb_player,sb_season,'batting')
+            if(fig1==0):
+                st.title('Insufficient data to show phase plot')
+            else:
+                if(sb_season=='Overall'):
+                    st.header(f'Box plot of runs scored by {sb_player}')
+                else:
+                    st.header(f'Box plot of runs scored by{sb_player} in season ' + str(sb_season))
+                st.plotly_chart(fig1)
+
+
 
     expander_bowling=st.expander(label='Bowling statistics')
 
-    # Bowling statistics of a player
+    # ********************************BOWLING STATISTICS OF A PLAYER*********************************
+    # ***********************************************************************************************
 
     with expander_bowling:
         stats = send.get_bowling_stats(sb_player, sb_season)
@@ -300,12 +315,12 @@ if(user_menu=='PLAYER STATISTICS'):
                 st.subheader(stats['5W Hall'].unique()[0])
 
 
-            # ***********************bowling analysis plots***************************
+            #***********************BOWLING ANALYSIS PLOTS***************************
             st.write(' ')
             st.write(' ')
             st.title("Bowling Analysis")
 
-            # ***********Performance plot of bowler
+            # ***********PERFORMANCE PLOT OF BOWLER
 
             fig1 = send.get_performance_bowling(sb_player, sb_season)
             if(fig1==0):
@@ -317,7 +332,7 @@ if(user_menu=='PLAYER STATISTICS'):
                     st.header(f'Wickets taken by {sb_player} in ' + str(sb_season))
                 st.plotly_chart(fig1)
 
-            # ***********Phase plot of bowler
+            # ***********PHASE PLOT OF BOWLER
 
             fig1=send.get_performance_phase(sb_player,sb_season,'bowling')
             if(fig1==0):
@@ -327,4 +342,17 @@ if(user_menu=='PLAYER STATISTICS'):
                     st.header(f'Wickets Taken in different Phases by {sb_player}')
                 else:
                     st.header(f'Wickets Taken in different Phases by {sb_player} in season ' + str(sb_season))
+                st.plotly_chart(fig1)
+
+
+            # ******************BOX PLOT OF BATSMAN RUNS
+
+            fig1=send.get_performance_box(sb_player,sb_season,'bowling')
+            if(fig1==0):
+                st.title('Insufficient data to show box plot')
+            else:
+                if(sb_season=='Overall'):
+                    st.header(f'Box plot of wickets taken by {sb_player}')
+                else:
+                    st.header(f'Box plot of wickets taken by{sb_player} in season ' + str(sb_season))
                 st.plotly_chart(fig1)

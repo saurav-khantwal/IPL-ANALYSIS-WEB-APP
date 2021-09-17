@@ -391,6 +391,8 @@ def get_performance_batting(player,season):
         scores = batting_tally_season.loc[
             batting_tally_season['batsman'] == player, ['season', 'batsman_runs','Innings']].set_index('season')
         scores.index = scores.index.astype(str)
+        if(scores['batsman_runs'].sum()==0):
+            return 0
         fig = px.line(scores, x=scores.index, y="batsman_runs", markers=True,hover_data=[scores.index, "Innings",'batsman_runs'])
         fig.update_xaxes(showgrid=False)
         # fig.data[0].line.color = 'rgb(255,0,0)'
@@ -501,4 +503,44 @@ def get_performance_phase(player,season,type):
         return 0
 
     fig.update_layout(width=800, height=400, margin=dict(t=10, b=20))
+    return fig
+
+
+def get_performance_box(player,season,type):
+
+    if(type=='batting'):
+        if(season!='Overall'):
+            scores = scorecard.loc[(scorecard['batsman'] == player) &
+                                   (scorecard['season'] == season), 'batsman_runs'].reset_index(drop=True)
+            if(sum(scores.values)==0):
+                return 0
+            fig = px.box(scores, y=scores.values, points="all",notched=False,labels={'y':'Runs'})
+
+        else:
+            scores = scorecard.loc[
+                scorecard['batsman'] == player, ['season', 'batsman_runs']]
+            if(scores['batsman_runs'].sum()==0):
+                return 0
+            fig = px.box(scores, color='season',y='batsman_runs',notched=False)
+
+    else:
+        if(season!='Overall'):
+            temp = ball_df.groupby(['id', 'bowler', 'season'])["bowler's_wicket"].sum().reset_index()
+            scores = temp.loc[(temp['bowler'] == player) &
+                              (temp['season'] == season), "bowler's_wicket"].reset_index(drop=True)
+            if (sum(scores.values) == 0):
+                return 0
+            fig = px.box(scores,y=scores.values, points="all",notched=False,labels={'y':'Wicket'})
+
+        else:
+            temp = ball_df.groupby(['id', 'bowler', 'season'])["bowler's_wicket"].sum().reset_index()
+            scores = temp.loc[temp['bowler'] == player, ['season', "bowler's_wicket"]]
+            scores.season = scores.season.astype(str)
+            if (scores["bowler's_wicket"].sum() == 0):
+                return 0
+            fig = px.box(scores, color='season',y="bowler's_wicket",notched=False)
+
+
+    fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
+    fig.update_layout(width=900, height=450, margin=dict(t=10, b=20),boxgap=0.1)
     return fig
