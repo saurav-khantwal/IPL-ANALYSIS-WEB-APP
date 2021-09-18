@@ -110,7 +110,7 @@ if(user_menu=='MATCH STATISTICS'):
         st.plotly_chart(fig2)
         st.write('')
 
-        #*******Bar plot teams
+        #*******Bar plot run scored in innings
 
         st.title("Bar plot of runs throughout the Innings")
         st.subheader('First Innings - ' + send.get_team_name(match_id, 1, 'inning', 'batting') + ' ' + send.get_total(match_id,1,'inning'))
@@ -150,6 +150,16 @@ if(user_menu=='MATCH STATISTICS'):
             st.text('Team did not lose any wicket')
         else:
             st.plotly_chart(fig2)
+        st.write('')
+
+        #*******Bar plot of boundaries
+
+        st.title("Bar plot of boundaries scored")
+        if(fig1==0):
+            st.text('Team did not score any boundaries')
+        else:
+            fig1=send.get_boundaries_bar(match_id)
+            st.plotly_chart(fig1)
         st.write('')
 
         #*******Run worm of teams
@@ -293,6 +303,20 @@ if(user_menu=='PLAYER STATISTICS'):
                 else:
                     st.header(f'Box plot of runs scored by {sb_player} in season ' + str(sb_season))
                 st.plotly_chart(fig1)
+
+
+            #*****************BAR PLOT OF BATSMAN BOUNDARIES (BAR PLOT)
+
+            fig1=send.get_player_boundaries(sb_player,sb_season)
+            if(fig1==0):
+                st.text('Insufficient data to show bar plot of boundaries')
+            else:
+                if (sb_season == 'Overall'):
+                    st.header(f'Bar plot of boundaries scored by {sb_player}')
+                else:
+                    st.header(f'Bar plot of boundaries scored by {sb_player} in season ' + str(sb_season))
+                st.plotly_chart(fig1)
+
 
             # ***********PERFORMANCE PLOT OF BATSMAN STRIKE RATE (LINE PLOT)
 

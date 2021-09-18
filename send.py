@@ -19,6 +19,9 @@ bowling_tally_season=pd.read_csv('bowling_stats_season.csv')
 
 
 #***********************************THIS SECTION WILL RETURN FOR THE MATCH STATS SECTION*********************
+#************************************************************************************************************
+#************************************************************************************************************
+
 
 def send_match():
     """This function will send the Imputed
@@ -175,7 +178,7 @@ def get_mom(id):
 
 
 
-# *****************THIS SECTION WILL RETURN FOR THE PLOTS FOR MATCH STATS*********************************
+# **********************THIS SECTION WILL RETURN FOR THE PLOTS FOR MATCH STATS*******************************
 
 
 def get_contribution_plot(id, inning):
@@ -190,7 +193,8 @@ def get_contribution_plot(id, inning):
     df_scores = df_scores.append(extras, ignore_index=True)
 
 
-    fig = go.Figure(data=[go.Pie(labels=df_scores['batsman'], values=df_scores['batsman_runs'].values, hole=.5,insidetextorientation='radial')])
+    fig = go.Figure(data=[go.Pie(labels=df_scores['batsman'], values=df_scores['batsman_runs'].values,
+                                 hole=.5,insidetextorientation='radial')])
     fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
     fig.update_layout(width=800,height=400,margin=dict(t=10,b=20))
     return fig
@@ -267,6 +271,19 @@ def get_phase_plot(id, inning, bat_or_bowl):
 
 
 
+def get_boundaries_bar(id):
+    """This function will return the bar
+    plot of boundaries scored by both teams"""
+
+    boundaries=ball_df[ball_df['id']==id].groupby(['batting_team'])[['is_four','is_six']].sum().reset_index()
+    if((boundaries['is_six'].sum()==0) & (boundaries['is_four'].sum()==0)):
+        return 0
+    fig=px.bar(boundaries,x='batting_team',y=['is_four','is_six'],barmode='group')
+    fig.update_traces(textposition='outside',marker=dict(line=dict(color='#000000', width=2)))
+    fig.update_layout(width=800, height=400, margin=dict(t=10, b=20))
+    return fig
+
+
 def get_worm_plot(id):
     """This function will return
     the worm plot"""
@@ -295,6 +312,8 @@ def get_worm_plot(id):
 
 
 #***********************************THIS SECTION WILL RETURN FOR THE OVERALL STATS SECTION*********************
+#**************************************************************************************************************
+#**************************************************************************************************************
 
 
 def get_run_tally(cb,season):
@@ -332,6 +351,8 @@ def get_wicket_tally(cb,season):
 
 
 #***********************************THIS SECTION WILL RETURN FOR THE PLAYER STATS SECTION*********************
+#*************************************************************************************************************
+#*************************************************************************************************************
 
 
 def get_player_list():
@@ -347,10 +368,11 @@ def get_player_season(sb):
 
     seasons = (batting_tally_season.loc[batting_tally_season['batsman']==sb,'season']
                .append(bowling_tally_season.loc[bowling_tally_season['bowler']==sb,'season'])).unique()
-    seasons=np.sort(seasons)
+    seasons=-np.sort(-seasons)
     seasons=list(seasons)
     seasons.insert(0,'Overall')
     return seasons
+
 
 def get_batting_stats(player,season):
     """This function will return
@@ -375,7 +397,7 @@ def get_bowling_stats(player,season):
 
 
 
-#*****************************THIS SECTION WILL RETURN PLOTS FOR PLAYER ANALYSIS SECTION*********************
+#******************************THIS SECTION WILL RETURN PLOTS FOR PLAYER ANALYSIS SECTION*********************
 
 
 def get_performance_batting(player,season,type):
@@ -444,11 +466,12 @@ def get_performance_bowling(player,season):
 
 
 def get_performance_line(player,season,type):
-    """"""
+    """This will return
+    the line plot runs scored or the wickets taken in each match"""
 
     if(type=='batsman_runs'):
         scores = scorecard.loc[(scorecard['batsman'] == player) &
-                          (scorecard['season'] == season), ["batsman_runs"]].reset_index(drop=True)
+                               (scorecard['season'] == season), ["batsman_runs"]].reset_index(drop=True)
         scores.index=(scores.index+1).astype(str)
         fig = px.line(scores, x=scores.index,y="batsman_runs",markers=True,labels={'batsman_runs':'Runs','index':'match'})
 
@@ -612,4 +635,16 @@ def get_performance_box(player,season,type):
 
     fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
     fig.update_layout(width=900, height=450, margin=dict(t=10, b=20),boxgap=0.1)
+    return fig
+
+def get_player_boundaries(player,season):
+    if(season=='Overall'):
+        boundaries=ball_df[ball_df['batsman']==player].groupby(['batsman'])[['is_six','is_four']].sum()
+    else:
+        boundaries = ball_df[(ball_df['batsman'] == player) & (ball_df['season']==season)].groupby(['batsman'])[['is_six', 'is_four']].sum()
+    if(boundaries['is_six'].sum()==0) and (boundaries['is_four'].sum()==0):
+        return 0
+    fig=px.bar(boundaries,x=['batsman'],y=['is_four','is_six'],barmode='group')
+    fig.update_traces(textposition='outside',marker=dict(line=dict(color='#000000', width=2)))
+    fig.update_layout(width=925, height=400, margin=dict(t=10, b=20))
     return fig
