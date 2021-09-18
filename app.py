@@ -245,23 +245,36 @@ if(user_menu=='PLAYER STATISTICS'):
             st.title('Batting Analysis')
             st.write(' ')
 
-            #***********PERFORMANCE PLOT OF BATSMAN RUNS
+
+            #***********PERFORMANCE PLOT OF BATSMAN RUNS IN A PARTICULAR SEASON (LINE PLOT)
+
+            if(sb_season!='Overall'):
+                fig1=send.get_performance_line(sb_player,sb_season,'batsman_runs')
+                if(fig1==0):
+                    st.text('Insufficient data to show plot')
+                else:
+                    st.header(f'Runs scored by {sb_player} in season ' + str(sb_season) + " Line Plot")
+                    st.plotly_chart(fig1)
+
+
+
+            #***********PERFORMANCE PLOT OF BATSMAN RUNS (BAR PLOT AND HISTOGRAM)
 
             fig1=send.get_performance_batting(sb_player,sb_season,'batsman_runs')
             if(fig1==0):
-                st.title('Insufficient data to show plot')
+                st.text('Insufficient data to show plot')
             else:
                 if(sb_season=='Overall'):
                     st.header(f'Runs scored by {sb_player} over the Seasons')
                 else:
-                    st.header(f'Runs scored by {sb_player} in season ' + str(sb_season))
+                    st.header(f'Runs scored by {sb_player} in season ' + str(sb_season) + " Histogram")
                 st.plotly_chart(fig1)
 
-            #******************PHASE PLOT OF BATSMAN
+            #******************PHASE PLOT OF BATSMAN (PIE PLOT)
 
             fig1=send.get_performance_phase(sb_player,sb_season,'batting')
             if(fig1==0):
-                st.title('Insufficient data to show phase plot')
+                st.text('Insufficient data to show phase plot')
             else:
                 if(sb_season=='Overall'):
                     st.header(f'Runs scored in different Phases by {sb_player}')
@@ -269,23 +282,23 @@ if(user_menu=='PLAYER STATISTICS'):
                     st.header(f'Runs scored in different Phases by {sb_player} in season ' + str(sb_season))
                 st.plotly_chart(fig1)
 
-            # ******************BOX PLOT OF BATSMAN RUNS
+            # ******************BOX PLOT OF BATSMAN RUNS (BOX PLOT)
 
             fig1=send.get_performance_box(sb_player,sb_season,'batting')
             if(fig1==0):
-                st.title('Insufficient data to show phase plot')
+                st.text('Insufficient data to show phase plot')
             else:
                 if(sb_season=='Overall'):
                     st.header(f'Box plot of runs scored by {sb_player}')
                 else:
-                    st.header(f'Box plot of runs scored by{sb_player} in season ' + str(sb_season))
+                    st.header(f'Box plot of runs scored by {sb_player} in season ' + str(sb_season))
                 st.plotly_chart(fig1)
 
-            # ***********PERFORMANCE PLOT OF BATSMAN STRIKE RATE
+            # ***********PERFORMANCE PLOT OF BATSMAN STRIKE RATE (LINE PLOT)
 
             fig1=send.get_performance_batting(sb_player,sb_season,'strike_rate')
             if(fig1==0):
-                st.title('Insufficient data to show plot')
+                st.text('Insufficient data to show plot')
             else:
                 if(sb_season=='Overall'):
                     st.header(f'Strike rate of {sb_player} over the Seasons')
@@ -294,11 +307,27 @@ if(user_menu=='PLAYER STATISTICS'):
                 st.plotly_chart(fig1)
 
 
+            # ***********PERFORMANCE PLOT OF BATSMAN  AVERAGE (BAR PLOT)
 
-    expander_bowling=st.expander(label='Bowling statistics')
+            if(sb_season=='Overall'):
+                fig1=send.get_performance_batting(sb_player,sb_season,'Average')
+                if(fig1==0):
+                    st.text('Insufficient data to show plot')
+                else:
+                    if(sb_season=='Overall'):
+                        st.header(f'Average of {sb_player} over the Seasons')
+                    else:
+                        st.header(f'Average of {sb_player} in season ' + str(sb_season))
+                    st.plotly_chart(fig1)
+
+
+
+
 
     # ********************************BOWLING STATISTICS OF A PLAYER*********************************
     # ***********************************************************************************************
+
+    expander_bowling=st.expander(label='Bowling statistics')
 
     with expander_bowling:
         stats = send.get_bowling_stats(sb_player, sb_season)
@@ -328,11 +357,24 @@ if(user_menu=='PLAYER STATISTICS'):
 
 
             #***********************BOWLING ANALYSIS PLOTS***************************
+
             st.write(' ')
             st.write(' ')
             st.title("Bowling Analysis")
 
-            # ***********PERFORMANCE PLOT OF BOWLER
+            # ***********PERFORMANCE PLOT OF BOWLER'S WICKET IN A PARTICULAR SEASON (LINE PLOT)
+
+            if (sb_season != 'Overall'):
+                fig1 = send.get_performance_line(sb_player, sb_season, "bowler's_wicket")
+                if (fig1 == 0):
+                    st.text('Insufficient data to show plot')
+                else:
+                    st.header(f'Wickets taken by {sb_player} in season ' + str(sb_season) + ' Line Plot')
+                    st.plotly_chart(fig1)
+
+
+
+            # ***********PERFORMANCE PLOT OF BOWLER'S WICKET (BAR PLOT AND HISTOGRAM)
 
             fig1 = send.get_performance_bowling(sb_player, sb_season)
             if(fig1==0):
@@ -341,10 +383,10 @@ if(user_menu=='PLAYER STATISTICS'):
                 if (sb_season == 'Overall'):
                     st.header(f'Wickets taken by {sb_player} over the Seasons')
                 else:
-                    st.header(f'Wickets taken by {sb_player} in ' + str(sb_season))
+                    st.header(f'Wickets taken by {sb_player} in ' + str(sb_season)+ " Histogram")
                 st.plotly_chart(fig1)
 
-            # ***********PHASE PLOT OF BOWLER
+            # ***********PHASE PLOT OF BOWLER (PIE PLOT)
 
             fig1=send.get_performance_phase(sb_player,sb_season,'bowling')
             if(fig1==0):
@@ -357,7 +399,7 @@ if(user_menu=='PLAYER STATISTICS'):
                 st.plotly_chart(fig1)
 
 
-            # ******************BOX PLOT OF BOWLER WICKET
+            # ******************BOX PLOT OF BOWLER WICKET (BOX PLOT)
 
             fig1=send.get_performance_box(sb_player,sb_season,'bowling')
             if(fig1==0):
@@ -370,7 +412,7 @@ if(user_menu=='PLAYER STATISTICS'):
                 st.plotly_chart(fig1)
 
 
-            # ***********PERFORMANCE PLOT OF BOWLER ECONOMY
+            # ***********PERFORMANCE PLOT OF BOWLER ECONOMY (BAR PLOT)
 
             fig1=send.get_bowling_economy(sb_player,sb_season)
             if(fig1==0):

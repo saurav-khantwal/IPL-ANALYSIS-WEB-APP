@@ -259,6 +259,8 @@ def get_phase_plot(id, inning, bat_or_bowl):
         colors = ['rgb(99, 62, 187)', 'rgb(190, 97, 202)', 'rgb(242, 188, 94)']
         fig.update_traces(marker=dict(colors=colors, line=dict(color='#000000', width=2)), sort=False)
 
+    if(phase1==0 and phase2==0 and phase3==0):
+        return 0
 
     fig.update_layout(width=800, height=400, margin=dict(t=10, b=20))
     return fig
@@ -299,8 +301,8 @@ def get_run_tally(cb,season):
     """This function will return
     the run tally of IPL"""
     if(season=='All Time'):
-        x=batting_tally[['batsman','Innings','batsman_runs','Average','strike_rate','High_score','Half_Centuries',
-                          'Centuries']].reset_index(drop=True)
+        x=batting_tally[['batsman','Innings','batsman_runs','Average',
+                         'strike_rate','High_score','Half_Centuries','Centuries']].reset_index(drop=True)
     else:
         x=batting_tally_season.loc[batting_tally_season['season']==season,['batsman','Innings','batsman_runs',
                                                                            'Average','strike_rate','High_score',
@@ -343,8 +345,8 @@ def get_player_season(sb):
     """This function will return
     the modified season for the select box according to the player"""
 
-    seasons = (batting_tally_season.loc[batting_tally_season['batsman']==sb,'season'].
-    append(bowling_tally_season.loc[bowling_tally_season['bowler']==sb,'season'])).unique()
+    seasons = (batting_tally_season.loc[batting_tally_season['batsman']==sb,'season']
+               .append(bowling_tally_season.loc[bowling_tally_season['bowler']==sb,'season'])).unique()
     seasons=np.sort(seasons)
     seasons=list(seasons)
     seasons.insert(0,'Overall')
@@ -382,9 +384,9 @@ def get_performance_batting(player,season,type):
 
     if (season != 'Overall'):
         scores = scorecard.loc[(scorecard['batsman'] == player) &
-                        (scorecard['season'] == season), type].reset_index(drop=True)
+                               (scorecard['season'] == season), type].reset_index(drop=True)
         if(sum(scores.values)==0):
-                return 0
+            return 0
         fig = px.histogram(scores, x=type)
 
 
@@ -394,7 +396,10 @@ def get_performance_batting(player,season,type):
         scores.index = scores.index.astype(str)
         if(scores[type].sum()==0):
             return 0
-        fig = px.line(scores, x=scores.index, y=type, markers=True,hover_data=[scores.index, "Innings",type])
+        if((type=='batsman_runs') or (type=='Average')):
+            fig = px.bar(scores, x=scores.index, y=type,hover_data=[scores.index, "Innings",type])
+        else:
+            fig = px.line(scores, x=scores.index,markers=True, y=type, hover_data=[scores.index, "Innings", type])
         fig.update_xaxes(showgrid=False)
         # fig.data[0].line.color = 'rgb(255,0,0)'
 
@@ -414,7 +419,7 @@ def get_performance_bowling(player,season):
     if (season != 'Overall'):
         temp=ball_df.groupby(['id','bowler','season'])["bowler's_wicket"].sum().reset_index()
         scores = temp.loc[(temp['bowler'] == player) &
-                               (temp['season'] == season), "bowler's_wicket"].reset_index(drop=True)
+                          (temp['season'] == season), "bowler's_wicket"].reset_index(drop=True)
         if(sum(scores.values)==0):
             return 0
         fig = px.histogram(scores, x="bowler's_wicket")
@@ -426,7 +431,7 @@ def get_performance_bowling(player,season):
         scores.season = scores.season.astype(str)
         if(scores['wickets'].sum()==0):
             return 0
-        fig = px.line(scores, x=scores.season, y="wickets", markers=True,hover_data=[scores.season, "match",'wickets'])
+        fig = px.bar(scores, x=scores.season, y="wickets",hover_data=[scores.season, "match",'wickets'])
         fig.update_xaxes(showgrid=False)
         # fig.data[0].line.color = 'rgb(255,0,0)'
 
@@ -438,10 +443,41 @@ def get_performance_bowling(player,season):
     return fig
 
 
+def get_performance_line(player,season,type):
+    """"""
+
+    if(type=='batsman_runs'):
+        scores = scorecard.loc[(scorecard['batsman'] == player) &
+                          (scorecard['season'] == season), ["batsman_runs"]].reset_index(drop=True)
+        scores.index=(scores.index+1).astype(str)
+        fig = px.line(scores, x=scores.index,y="batsman_runs",markers=True,labels={'batsman_runs':'Runs','index':'match'})
+
+    else:
+        temp = ball_df.groupby(['id', 'bowler', 'season'])["bowler's_wicket"].sum().reset_index()
+        scores = temp.loc[(temp['bowler'] == player) &
+                          (temp['season'] == season), "bowler's_wicket"].reset_index(drop=True)
+        scores.index = (scores.index + 1).astype(str)
+        fig = px.line(scores, x=scores.index,y="bowler's_wicket",markers=True,labels={"bowler's_wicket":'Wickets',"index":'match'})
+
+    if (sum(scores.values) == 0):
+        return 0
+    fig.update_xaxes(showgrid=False)
+    # fig.data[0].line.color = 'rgb(255,0,0)'
+    fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
+    fig.update_layout(hoverlabel=dict(
+        bgcolor="white",
+        font_size=16,
+        font_family="Rockwell"),width=900, height=400, margin=dict(t=10, b=20))
+    return fig
+
+
 def get_bowling_economy(player,season):
+    """This function will return 
+    the line plot for economy of the player"""
+
     if (season != 'Overall'):
         scores = bowling_card.loc[(bowling_card['bowler'] == player) &
-                               (bowling_card['season'] == season), "economy"].reset_index(drop=True)
+                                  (bowling_card['season'] == season), "economy"].reset_index(drop=True)
         if(sum(scores.values)==0):
             return 0
         fig = px.histogram(scores, x="economy")
@@ -468,6 +504,9 @@ def get_bowling_economy(player,season):
 
 
 def get_performance_phase(player,season,type):
+    """This function will return
+    the phase plot for the runs scored and wickets taken in different phases by players"""
+
     if (type == 'batting'):
 
         if(season=='Overall'):
@@ -535,6 +574,8 @@ def get_performance_phase(player,season,type):
 
 
 def get_performance_box(player,season,type):
+    """This function will return
+    the box plot of the player performance"""
 
     if(type=='batting'):
         if(season!='Overall'):
