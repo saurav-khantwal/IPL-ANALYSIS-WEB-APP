@@ -6,6 +6,10 @@ import send
 
 
 st.set_page_config(page_title=None, page_icon=None, layout='wide', initial_sidebar_state='auto')
+st.markdown(""" <style>
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+</style> """, unsafe_allow_html=True)
 
 st.sidebar.title('IPL ANALYSIS')
 user_menu=st.sidebar.radio(
