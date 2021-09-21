@@ -255,9 +255,6 @@ def get_phase_plot(id, inning, bat_or_bowl):
         colors = ['rgb(99, 62, 187)', 'rgb(190, 97, 202)', 'rgb(242, 188, 94)']
         fig.update_traces(marker=dict(colors=colors, line=dict(color='#000000', width=2)), sort=False)
 
-    if (phase1 == 0 and phase2 == 0 and phase3 == 0):
-        return 0
-
     fig.update_layout(width=800, height=400, margin=dict(t=10, b=20))
     return fig
 
@@ -267,8 +264,6 @@ def get_boundaries_bar(id):
     plot of boundaries scored by both teams"""
 
     boundaries = ball_df[ball_df['id'] == id].groupby(['batting_team'])[['is_four', 'is_six']].sum().reset_index()
-    if ((boundaries['is_six'].sum() == 0) & (boundaries['is_four'].sum() == 0)):
-        return 0
     fig = px.bar(boundaries, x='batting_team', y=['is_four', 'is_six'], barmode='group')
     fig.update_traces(textposition='outside', marker=dict(line=dict(color='#000000', width=2)))
     fig.update_layout(width=800, height=400, margin=dict(t=10, b=20))
