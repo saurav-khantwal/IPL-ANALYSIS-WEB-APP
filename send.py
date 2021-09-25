@@ -18,6 +18,8 @@ batting_opposition = pd.read_csv('batsman_performance_opposition.csv')
 batting_opposition_season = pd.read_csv('batsman_performance_opposition_season.csv')
 
 
+batting_tally_season.rename(columns={'high_score':'High_score'},inplace=True)
+
 # ***********************************THIS SECTION WILL RETURN FOR THE MATCH STATS SECTION*********************
 # ************************************************************************************************************
 # ************************************************************************************************************
