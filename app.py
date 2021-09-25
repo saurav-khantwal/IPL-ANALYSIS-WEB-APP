@@ -185,23 +185,47 @@ if(user_menu=='IPL STATISTICS'):
         years = send.match_df['season'].sort_values().unique().tolist()
         years.insert(0, 'All Time')
         sb_season=st.selectbox('Select Season',years)
-    if(sb_season=='All Time'):
-        st.header("Overall Run Tally")
-    else:
-        st.header("Run tally of season " + str(sb_season))
-    st.text(' ')
-    cb_runs=st.checkbox(label='Show Full Run Tally')
-    st.table(send.get_run_tally(cb_runs,sb_season).style.format(subset=['Average','strike_rate'], formatter="{:.1f}"))
 
-    if (sb_season == 'All Time'):
-        st.header("Overall Wicket Tally")
-    else:
-        st.header("Wicket tally of season " + str(sb_season))
-    st.text(' ')
-    cb_wickets=st.checkbox(label='Show Full Wicket Tally')
-    st.table(send.get_wicket_tally(cb_wickets,sb_season).style.format(subset=['economy'], formatter="{:.2f}"))
+    expander_runs=st.expander(label='Show Run Tally')
+    with expander_runs:
+        if(sb_season=='All Time'):
+            st.header("Overall Run Tally")
+        else:
+            st.header("Run tally of season " + str(sb_season))
+        st.text(' ')
+        cb_runs=st.checkbox(label='Show Full Run Tally')
+        st.table(send.get_run_tally(cb_runs,sb_season).style.format(subset=['Average','strike_rate'], formatter="{:.1f}"))
+
+    expander_wickets=st.expander(label='Show Wicket Tally')
+    with expander_wickets:
+        if (sb_season == 'All Time'):
+            st.header("Overall Wicket Tally")
+        else:
+            st.header("Wicket tally of season " + str(sb_season))
+        st.text(' ')
+        cb_wickets=st.checkbox(label='Show Full Wicket Tally')
+        st.table(send.get_wicket_tally(cb_wickets,sb_season).style.format(subset=['economy'], formatter="{:.2f}"))
+
+    expander_sixes=st.expander(label='Show Sixes Tally')
+    with expander_sixes:
+        if (sb_season == 'All Time'):
+            st.header("Overall Six Tally")
+        else:
+            st.header("Six tally of season " + str(sb_season))
+        st.text(' ')
+        cb_boundary=st.checkbox(label='Show Full six Tally')
+        st.table(send.get_boundaries_tally(cb_boundary,sb_season))
 
 
+    expander_catches=st.expander(label='Show Catches Tally')
+    with expander_catches:
+        if (sb_season == 'All Time'):
+            st.header("Overall Catches Tally")
+        else:
+            st.header("Catches tally of season " + str(sb_season))
+        st.text(' ')
+        cb_catches=st.checkbox(label='Show Full Catch Tally')
+        st.table(send.get_catches_tally(cb_catches,sb_season))
 
 
     #*********************************************************************************************************************

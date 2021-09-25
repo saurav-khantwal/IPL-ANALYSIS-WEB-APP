@@ -338,6 +338,36 @@ def get_wicket_tally(cb, season):
     return x.head(5)
 
 
+def get_boundaries_tally(cb,season):
+
+    if(season=='All Time'):
+        x=batting_tally[['batsman','total_sixes','total_fours']].sort_values(by=['total_sixes'],ascending=False).reset_index(drop=True)
+    else:
+        x=batting_tally_season.loc[batting_tally_season['season']==season,['batsman','total_sixes','total_fours']]\
+            .sort_values(by=['total_sixes'],ascending=False).reset_index(drop=True)
+    x.index = x.index + 1
+    if (cb):
+        return x
+    return x.head(5)
+
+
+def get_catches_tally(cb,season):
+
+    if(season=='All Time'):
+        x=scorecard.loc[scorecard['dismissal_kind'].isin(['caught','caught and bowled']),'fielder'].\
+            value_counts().sort_values(ascending=False).reset_index()
+    else:
+        x=scorecard.loc[(scorecard['dismissal_kind'].isin(['caught','caught and bowled']))&
+                         (scorecard['season']==season),'fielder'].\
+            value_counts().sort_values(ascending=False).reset_index()
+    x.rename(columns={'index':'Fielder','fielder':'Catches'},inplace=True)
+    x.index = x.index + 1
+    if (cb):
+        return x
+    return x.head(5)
+
+
+
 # ***********************************THIS SECTION WILL RETURN FOR THE PLAYER STATS SECTION*********************
 # *************************************************************************************************************
 # *************************************************************************************************************
