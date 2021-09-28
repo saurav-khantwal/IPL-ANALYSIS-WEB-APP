@@ -748,3 +748,75 @@ def get_performance_against_opposition(player, season, type):
     fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
     fig.update_layout(width=925, height=400, margin=dict(t=10, b=20))
     return fig
+
+
+# ***********************************THIS SECTION WILL RETURN FOR THE TEAM STATS SECTION*********************
+# *************************************************************************************************************
+# *************************************************************************************************************
+
+
+def get_average(x):
+    if(x['id'] == x['not outs']):
+        return x['batsman_runs']
+    else:
+        return x['batsman_runs']/(x['id']-x['not outs'])
+
+
+def get_top_run_scorers(team,season,cb):
+
+    if(season == 'All Time'):
+        team_scorers = ball_df[ball_df['batting_team'] == team].groupby(['batsman']).agg(
+            {'id': 'nunique', 'batsman_runs': 'sum', 'valid_ball': 'sum', 'is_four': 'sum',
+             'is_six': 'sum'}).reset_index().sort_values(by=['batsman_runs'], ascending=False)
+
+        team_not_outs = \
+        scorecard[(scorecard['batting_team'] == team) & (scorecard['info'] == 'not out')].groupby(['batsman'])[
+            'info'].count().to_dict()
+
+    else:
+        team_scorers = ball_df[(ball_df['batting_team'] == team) & (ball_df['season']==season)].groupby(['batsman']).agg(
+            {'id': 'nunique', 'batsman_runs': 'sum', 'valid_ball': 'sum', 'is_four': 'sum',
+             'is_six': 'sum'}).reset_index().sort_values(by=['batsman_runs'], ascending=False)
+
+        team_not_outs =scorecard[(scorecard['batting_team'] == team) & (scorecard['info'] == 'not out')
+        & (scorecard['season'] == season)].groupby(['batsman'])[
+            'info'].count().to_dict()
+
+    team_scorers['not outs'] = team_scorers.batsman.map(team_not_outs).fillna(0).astype(int)
+    team_scorers['strike_rate'] = (team_scorers['batsman_runs'] / team_scorers['valid_ball']) * 100
+    team_scorers['Average'] = team_scorers.apply(get_average, axis=1)
+
+    team_scorers['strike_rate'] = [float(f"{x:.2f}") for x in team_scorers['strike_rate'].values]
+    team_scorers['Average'] = [float(f"{x:.2f}") for x in team_scorers['Average'].values]
+    team_scorers.rename(columns={'id':'match'}, inplace=True)
+
+    if(cb):
+        team_scorers = team_scorers.reset_index(drop=True)
+    else:
+        team_scorers = team_scorers.head(5).reset_index(drop=True)
+    team_scorers.index = team_scorers.index+1
+
+    return team_scorers
+
+
+def get_top_wicket_takers(team,season,cb):
+
+    if(season == 'All Time'):
+        team_wicket=ball_df[ball_df['bowling_team']==team].groupby(['bowler']).agg({'id':'nunique','bowler\'s_wicket':'sum','valid_ball':'sum','bowler\'s_runs':'sum'}).\
+            reset_index().sort_values(by=["bowler\'s_wicket"],ascending=False)
+
+    else:
+        team_wicket=ball_df[(ball_df['bowling_team']==team) & (ball_df['season'] == season)].groupby(['bowler']).agg({'id':'nunique','bowler\'s_wicket':'sum','valid_ball':'sum','bowler\'s_runs':'sum'}).\
+            reset_index().sort_values(by=["bowler\'s_wicket"],ascending=False)
+
+    team_wicket['overs_bowled'] = (team_wicket['valid_ball'] // 6) + (team_wicket['valid_ball'] % 6) / 10
+    team_wicket['economy'] = team_wicket["bowler's_runs"] / team_wicket['overs_bowled']
+    team_wicket['economy'] = [float(f"{x:.2f}") for x in team_wicket['economy'].values]
+    team_wicket.rename(columns={'id':'match'}, inplace=True)
+
+    if(cb):
+        team_wicket = team_wicket.reset_index(drop=True)
+    team_wicket = team_wicket.head(5).reset_index(drop=True)
+
+    team_wicket.index = team_wicket.index+1
+    return team_wicket[['bowler','match','bowler\'s_wicket','economy']]
