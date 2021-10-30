@@ -490,27 +490,58 @@ if(user_menu=='TEAM STATISTICS'):
 
     season=st.selectbox('Select Season',
                            years)
-    if(season == 'All Time'):
-        st.header(f'Top Run scorers for {sb_team}')
-    else:
-        st.header(f'Top Run scorers for {sb_team} in season {season}')
-    st.write(' ')
-    cb_team_runs=st.checkbox(f'Show Batting Tally for {sb_team}')
-    st.table(send.get_top_run_scorers(sb_team,season, cb_team_runs).style.format(subset=['strike_rate','Average'], formatter="{:.2f}"))
 
-    if (season == 'All Time'):
-        st.header(f'Top Wicket Takers for {sb_team}')
-    else:
-        st.header(f'Top Wicket Takers for {sb_team} in season {season}')
-    st.write(' ')
-    cb_team_wickets=st.checkbox(f'Show Wicket tally for {sb_team}')
-    st.table(send.get_top_wicket_takers(sb_team, season, cb_team_wickets).style.format(subset=['economy'], formatter="{:.2f}"))
+    ## TOP RUN SCORERS FOR A TEAM
+    expander_team_stats = st.expander(label='Show Team Stats')
+    with expander_team_stats:
+        if(season == 'All Time'):
+            st.header(f'Top Run scorers for {sb_team}')
+        else:
+            st.header(f'Top Run scorers for {sb_team} in season {season}')
+        st.write(' ')
+        cb_team_runs=st.checkbox(f'Show Batting Tally for {sb_team}')
+        st.table(send.get_top_run_scorers(sb_team,season, cb_team_runs).style.format(subset=['strike_rate','Average'], formatter="{:.2f}"))
 
-    if (season == 'All Time'):
-        st.header(f'{sb_team} against the oppositions')
-    else:
-        st.header(f'{sb_team} against the oppositions in season {season}')
+        ## TOP WICKET TAKERS FOR A TEAM
 
-    fig = send.get_team_performance(sb_team, season)
-    st.plotly_chart(fig)
+        if (season == 'All Time'):
+            st.header(f'Top Wicket Takers for {sb_team}')
+        else:
+            st.header(f'Top Wicket Takers for {sb_team} in season {season}')
+        st.write(' ')
+        cb_team_wickets=st.checkbox(f'Show Wicket tally for {sb_team}')
+        st.table(send.get_top_wicket_takers(sb_team, season, cb_team_wickets).style.format(subset=['economy'], formatter="{:.2f}"))
 
+    expander_team_analysis = st.expander(label = 'Show team analysis')
+    with expander_team_analysis:
+
+        ## PERFORMANCE AGAINST OPPOSITIONS
+
+        if (season == 'All Time'):
+            st.header(f'{sb_team} against the oppositions')
+        else:
+            st.header(f'{sb_team} against the oppositions in season {season}')
+
+        fig = send.get_team_performance(sb_team, season)
+        st.plotly_chart(fig)
+
+
+        ## WINS BY CHASING AND DEFENDING
+
+        if (season == 'All Time'):
+            st.header(f'{sb_team} while chasing and defending')
+        else:
+            st.header(f'{sb_team} while chasing and defending in season {season}')
+
+        fig = send.get_chase_n_defend(sb_team, season)
+        st.plotly_chart(fig)
+
+        ## PLOT FOR TOSS
+
+        if (season == 'All Time'):
+            st.header(f'{sb_team} Toss factor')
+        else:
+            st.header(f'{sb_team} Toss factor in season {season}')
+
+        fig = send.get_toss_wins(sb_team, season)
+        st.plotly_chart(fig)

@@ -825,10 +825,10 @@ def get_top_wicket_takers(team,season,cb):
 def get_team_performance(team, season):
 
     if(season == 'All Time'):
-        mum = match_df[((match_df['team1'] == team) | (match_df['team2'] == team))]
+        mum = match_df[((match_df['team1'] == team) | (match_df['team2'] == team)) & (match_df['winner']!= 'Washed Out')]
     else:
         mum = match_df[((match_df['team1'] == team) | (match_df['team2'] == team)) & (
-                    match_df['season'] == season)]
+                    match_df['season'] == season) & (match_df['winner']!= 'Washed Out')]
 
     mum_stats = mum['team1'].value_counts().reset_index().merge(mum['team2'].value_counts().reset_index(), on=['index'],how='outer'). \
         merge(mum[mum['winner'] != team]['winner'].value_counts().reset_index().rename(columns={'winner': 'win_opposition'}), on=['index'], how='outer')
@@ -844,6 +844,39 @@ def get_team_performance(team, season):
     mum_stats.rename(columns = {'index':'opposition'}, inplace = True)
     # fig = px.bar(mum_stats, x = 'opposition', y = 'win_percentage', hover_data=['total_matches', 'wins', 'win_percentage'])
     fig = px.funnel(mum_stats, x = 'wins', y = 'opposition', hover_data=['total_matches', 'wins', 'win_opposition', 'win_percentage'])
-    fig.update_layout(width=1000, height=500, margin=dict(t=10, b=20))
+    fig.update_layout(width=900, height=400, margin=dict(t=10, b=20))
     fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
+    return fig
+
+
+def get_chase_n_defend(team, season):
+    if(season == 'All Time'):
+        temp = match_df[((match_df['team1'] == team) | (match_df['team2'] == team)) &
+                        (match_df['winner'] == team) & (~match_df['result'].isin(['Washed Out']))]
+    else:
+        temp = match_df[((match_df['team1'] == team) | (match_df['team2'] == team)) &
+                        (match_df['winner'] == team) & (~match_df['result'].isin(['Washed Out'])) &
+                        (match_df['season'] == season)]
+    index_values = temp['result'].value_counts().index
+    index_values = ['Won Chasing' if x == 'wickets' else 'Won Defending' if x == 'runs' else 'Tied' for x in index_values]
+    values = temp['result'].value_counts().values
+
+    fig = px.bar(x = index_values, y = values, color=index_values)
+    fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
+    fig.update_layout(width=800, height=400, margin=dict(t=10, b=20))
+    return fig
+
+
+def get_toss_wins(team, season):
+    if(season == 'All Time'):
+        temp = match_df
+    else:
+        temp = match_df[match_df['season'] == season]
+    a = temp[(temp['toss_winner'] == team) & (temp['winner'] == team)].shape[0]
+    b = temp[~(temp['toss_winner'] == team) & (temp['winner'] == team)].shape[0]
+
+    fig = go.Figure(data=[go.Pie(labels=['Matches won winning the Toss', 'Matches won loosing the Toss'], values=[a, b],
+                                 hole=.5, insidetextorientation='radial')])
+    fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
+    fig.update_layout(width=800, height=400, margin=dict(t=10, b=20))
     return fig
