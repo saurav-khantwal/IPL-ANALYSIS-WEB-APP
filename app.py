@@ -15,7 +15,7 @@ footer {visibility: hidden;}
 st.sidebar.title('IPL ANALYSIS')
 user_menu=st.sidebar.radio(
     'select an option',
-    ('MATCH STATISTICS','IPL STATISTICS','PLAYER STATISTICS')
+    ('MATCH STATISTICS','IPL STATISTICS','PLAYER STATISTICS', 'TEAM STATISTICS')
 )
 
 
@@ -470,3 +470,47 @@ if(user_menu=='PLAYER STATISTICS'):
                 else:
                     st.header(f'Wickets Taken by {sb_player} against oppositions in season ' + str(sb_season))
                 st.plotly_chart(fig1)
+
+
+
+    # ********************************TEAM STATISTICS OF A PLAYER************************************
+    # ***********************************************************************************************
+
+
+
+if(user_menu=='TEAM STATISTICS'):
+
+    st.title("TEAM STATISTICS")
+    sb_team=st.selectbox('Select Team',
+                         send.match_df.loc[send.match_df['winner'] != 'Washed Out','winner'].
+                         value_counts().index)
+    years=send.match_df.loc[(send.match_df['team1']==sb_team) | (send.match_df['team2']==sb_team), 'season']\
+        .sort_values().unique().tolist()
+    years.insert(0, 'All Time')
+
+    season=st.selectbox('Select Season',
+                           years)
+    if(season == 'All Time'):
+        st.header(f'Top Run scorers for {sb_team}')
+    else:
+        st.header(f'Top Run scorers for {sb_team} in season {season}')
+    st.write(' ')
+    cb_team_runs=st.checkbox(f'Show Batting Tally for {sb_team}')
+    st.table(send.get_top_run_scorers(sb_team,season, cb_team_runs).style.format(subset=['strike_rate','Average'], formatter="{:.2f}"))
+
+    if (season == 'All Time'):
+        st.header(f'Top Wicket Takers for {sb_team}')
+    else:
+        st.header(f'Top Wicket Takers for {sb_team} in season {season}')
+    st.write(' ')
+    cb_team_wickets=st.checkbox(f'Show Wicket tally for {sb_team}')
+    st.table(send.get_top_wicket_takers(sb_team, season, cb_team_wickets).style.format(subset=['economy'], formatter="{:.2f}"))
+
+    if (season == 'All Time'):
+        st.header(f'{sb_team} against the oppositions')
+    else:
+        st.header(f'{sb_team} against the oppositions in season {season}')
+
+    fig = send.get_team_performance(sb_team, season)
+    st.plotly_chart(fig)
+
