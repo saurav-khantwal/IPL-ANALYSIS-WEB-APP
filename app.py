@@ -506,3 +506,11 @@ if(user_menu=='TEAM STATISTICS'):
     cb_team_wickets=st.checkbox(f'Show Wicket tally for {sb_team}')
     st.table(send.get_top_wicket_takers(sb_team, season, cb_team_wickets).style.format(subset=['economy'], formatter="{:.2f}"))
 
+    if (season == 'All Time'):
+        st.header(f'{sb_team} against the oppositions')
+    else:
+        st.header(f'{sb_team} against the oppositions in season {season}')
+
+    fig = send.get_team_performance(sb_team, season)
+    st.plotly_chart(fig)
+

@@ -820,3 +820,30 @@ def get_top_wicket_takers(team,season,cb):
 
     team_wicket.index = team_wicket.index+1
     return team_wicket[['bowler','match','bowler\'s_wicket','economy']]
+
+
+def get_team_performance(team, season):
+
+    if(season == 'All Time'):
+        mum = match_df[((match_df['team1'] == team) | (match_df['team2'] == team))]
+    else:
+        mum = match_df[((match_df['team1'] == team) | (match_df['team2'] == team)) & (
+                    match_df['season'] == season)]
+
+    mum_stats = mum['team1'].value_counts().reset_index().merge(mum['team2'].value_counts().reset_index(), on=['index'],how='outer'). \
+        merge(mum[mum['winner'] != team]['winner'].value_counts().reset_index().rename(columns={'winner': 'win_opposition'}), on=['index'], how='outer')
+    mum_stats = mum_stats[~(mum_stats['index'] == team)]
+
+    mum_stats.fillna(0, inplace=True)
+    mum_stats[['team1', 'team2', 'win_opposition']] = mum_stats[['team1', 'team2', 'win_opposition']].astype(int)
+
+    mum_stats['total_matches'] = mum_stats['team1'] + mum_stats['team2']
+    mum_stats['wins'] = mum_stats['total_matches'] - mum_stats['win_opposition']
+    mum_stats['win_percentage'] = (mum_stats['wins'] / mum_stats['total_matches']) * 100
+    mum_stats['win_percentage'] = [float(f"{x:.2f}") for x in mum_stats['win_percentage'].values]
+    mum_stats.rename(columns = {'index':'opposition'}, inplace = True)
+    # fig = px.bar(mum_stats, x = 'opposition', y = 'win_percentage', hover_data=['total_matches', 'wins', 'win_percentage'])
+    fig = px.funnel(mum_stats, x = 'wins', y = 'opposition', hover_data=['total_matches', 'wins', 'win_opposition', 'win_percentage'])
+    fig.update_layout(width=900, height=450, margin=dict(t=10, b=20))
+    fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
+    return fig
