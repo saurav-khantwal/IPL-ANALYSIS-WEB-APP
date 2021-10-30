@@ -844,6 +844,6 @@ def get_team_performance(team, season):
     mum_stats.rename(columns = {'index':'opposition'}, inplace = True)
     # fig = px.bar(mum_stats, x = 'opposition', y = 'win_percentage', hover_data=['total_matches', 'wins', 'win_percentage'])
     fig = px.funnel(mum_stats, x = 'wins', y = 'opposition', hover_data=['total_matches', 'wins', 'win_opposition', 'win_percentage'])
-    fig.update_layout(width=900, height=450, margin=dict(t=10, b=20))
+    fig.update_layout(width=1000, height=500, margin=dict(t=10, b=20))
     fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
     return fig
