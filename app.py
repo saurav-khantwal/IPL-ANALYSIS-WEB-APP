@@ -473,7 +473,7 @@ if(user_menu=='PLAYER STATISTICS'):
 
 
 
-    # ********************************TEAM STATISTICS OF A PLAYER************************************
+    # ********************************TEAM STATISTICS************************************
     # ***********************************************************************************************
 
 
@@ -492,6 +492,7 @@ if(user_menu=='TEAM STATISTICS'):
                            years)
 
     ## TOP RUN SCORERS FOR A TEAM
+
     expander_team_stats = st.expander(label='Show Team Stats')
     with expander_team_stats:
         if(season == 'All Time'):

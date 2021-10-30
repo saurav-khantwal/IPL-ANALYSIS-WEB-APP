@@ -699,19 +699,21 @@ def get_performance_box(player, season, type):
 
 def get_player_boundaries(player, season):
     if (season == 'Overall'):
-        boundaries = ball_df[ball_df['batsman'] == player].groupby(
-            ['batsman'])[['is_six', 'is_four']].sum()
+        boundaries = ball_df.loc[(ball_df['batsman'] == player),['is_four','is_six']].sum().reset_index()
     else:
-        boundaries = ball_df[(ball_df['batsman'] == player) & (ball_df['season'] == season)].groupby(['batsman'])[
-            ['is_six', 'is_four']].sum()
-    if (boundaries['is_six'].sum() == 0) and (boundaries['is_four'].sum() == 0):
+        boundaries = ball_df.loc[(ball_df['batsman'] == player) &
+                                 (ball_df['season'] == season),['is_four','is_six']].sum().reset_index()
+    boundaries.rename(columns={'index': 'boundary', 0: 'value'}, inplace=True)
+    boundaries.sort_values(by='boundary', inplace=True)
+
+    if (boundaries['value'].sum() == 0):
         return None
-    fig = px.bar(boundaries, x=['batsman'], y=[
-                 'is_four', 'is_six'], barmode='group')
+    fig = px.bar(boundaries, x='boundary', y='value', color='boundary')
     fig.update_traces(textposition='outside', marker=dict(
         line=dict(color='#000000', width=2)))
     fig.update_layout(width=925, height=400, margin=dict(t=10, b=20))
     return fig
+
 
 
 def get_performance_against_opposition(player, season, type):
