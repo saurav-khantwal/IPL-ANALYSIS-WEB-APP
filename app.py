@@ -5,8 +5,7 @@ import plotly.express as px
 import send
 
 
-
-st.set_page_config(page_title=None, page_icon=None, layout='wide', initial_sidebar_state='auto')
+st.set_page_config(page_title='Ipl Analysis', page_icon = 'chart_with_upwards_trend', layout='wide', initial_sidebar_state='auto')
 st.markdown(""" <style>
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
