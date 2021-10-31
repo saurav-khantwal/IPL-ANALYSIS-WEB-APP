@@ -298,6 +298,7 @@ def get_boundaries_bar(id):
     return fig
 
 
+
 def get_worm_plot(id):
     """This function will return
     the worm plot"""
@@ -712,6 +713,7 @@ def get_player_boundaries(player, season):
     fig.update_traces(textposition='outside', marker=dict(
         line=dict(color='#000000', width=2)))
     fig.update_layout(width=925, height=400, margin=dict(t=10, b=20))
+    fig.update_layout({'legend_title_text': ''})
     return fig
 
 
@@ -859,13 +861,15 @@ def get_chase_n_defend(team, season):
         temp = match_df[((match_df['team1'] == team) | (match_df['team2'] == team)) &
                         (match_df['winner'] == team) & (~match_df['result'].isin(['Washed Out'])) &
                         (match_df['season'] == season)]
-    index_values = temp['result'].value_counts().index
-    index_values = ['Won Chasing' if x == 'wickets' else 'Won Defending' if x == 'runs' else 'Tied' for x in index_values]
-    values = temp['result'].value_counts().values
 
-    fig = px.bar(x = index_values, y = values, color=index_values)
+    values = temp['result'].value_counts().reset_index().rename(columns = {'index':'type', 'result':'value'}).sort_values(by = 'type')
+    values.replace({'wickets':'Won Chasing', 'runs':'Won Defending'}, inplace =True)
+
+
+    fig = px.bar(values, x = 'type', y = 'value', color='type')
     fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
     fig.update_layout(width=800, height=400, margin=dict(t=10, b=20))
+    fig.update_layout({'legend_title_text':''})
     return fig
 
 
