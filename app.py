@@ -15,7 +15,7 @@ footer {visibility: hidden;}
 st.sidebar.title('IPL ANALYSIS')
 user_menu=st.sidebar.radio(
     'select an option',
-    ('MATCH STATISTICS','IPL STATISTICS','PLAYER STATISTICS', 'TEAM STATISTICS')
+    ('MATCH STATISTICS','PLAYER STATISTICS','TEAM STATISTICS', 'IPL STATISTICS')
 )
 
 
