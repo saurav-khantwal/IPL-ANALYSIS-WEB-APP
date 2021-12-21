@@ -3,6 +3,7 @@ import plotly.figure_factory as ff
 import plotly.graph_objects as go
 import plotly.express as px
 import send
+#test
 
 
 st.set_page_config(page_title='Ipl Analysis', page_icon = 'chart_with_upwards_trend', layout='wide', initial_sidebar_state='auto')
