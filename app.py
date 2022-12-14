@@ -41,7 +41,7 @@ if(user_menu=='MATCH STATISTICS'):
 
     match_id=roster[roster['Match']==sb_match]['id'].unique()[0]
 
-    # Expander window for the match Summary
+    # Expander window for the match  Summary
 
     expand_summary=st.expander(label='Show Match Summary')
     try:

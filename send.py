@@ -749,12 +749,12 @@ def get_performance_against_opposition(player, season, type):
             fig = px.bar(data, x='batting_team', y="bowler's_wicket",
                          hover_data=["bowler's_wicket", 'Innings', 'economy'])
 
-    fig.update_traces(marker=dict(line=dict(color='#000000', width=2)))
+    fig.update_traces(marker=dict(line=dict(color='#000000', width=2))) 
     fig.update_layout(width=925, height=400, margin=dict(t=10, b=20))
     return fig
 
 
-# ***********************************THIS SECTION WILL RETURN FOR THE TEAM STATS SECTION*********************
+# ***********************************THIS SECTION WILL RETURN FOR THE TEAM STATS SECTION**** *****************
 # *************************************************************************************************************
 # *************************************************************************************************************
 
