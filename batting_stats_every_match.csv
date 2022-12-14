@@ -3,7 +3,7 @@ id,inning,batting_team,batsman,batsman_runs,valid_ball,strike_rate,bowler,dismis
 335982,1,Kolkata Knight Riders,Ricky Ponting,20,20,100.0,Jacques Kallis,caught,Praveen Kumar,c Praveen Kumar b Jacques Kallis,2008,1,1,Royal Challengers Bangalore
 335982,1,Kolkata Knight Riders,David Hussey,12,12,100.0,Ashley Noffke,caught,Cameron White,c Cameron White b Ashley Noffke,2008,1,0,Royal Challengers Bangalore
 335982,1,Kolkata Knight Riders,Sourav Ganguly,10,12,83.3,Zaheer Khan,caught,Jacques Kallis,c Jacques Kallis b Zaheer Khan,2008,2,0,Royal Challengers Bangalore
-335982,1,Kolkata Knight Riders,Mohammad Hafeez,5,3,166.7,,,,not out,2008,1,0,Royal Challengers Bangalore
+335982,1,Kolkata Knight Riders,Mohammad Hafeez,5,3,166.6,,,,not out,2008,1,0,Royal Challengers Bangalore
 335982,2,Royal Challengers Bangalore,Praveen Kumar,18,15,120.0,,,,not out,2008,1,2,Kolkata Knight Riders
 335982,2,Royal Challengers Bangalore,Ashley Noffke,9,10,90.0,Sourav Ganguly,run out,"AB Agarkar,WP Saha","run out AB Agarkar,WP Saha",2008,1,0,Kolkata Knight Riders
 335982,2,Royal Challengers Bangalore,Jacques Kallis,8,7,114.3,Ajit Agarkar,caught,Murali Kartik,c Murali Kartik b Ajit Agarkar,2008,0,1,Kolkata Knight Riders
